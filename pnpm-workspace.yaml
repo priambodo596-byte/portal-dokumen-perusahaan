@@ -3,3 +3,13 @@ pmOnFail: ignore
 minimumReleaseAgeExclude:
   - '@next/*'
   - next
+
+fetchTimeout: 600000
+
+fetchRetries: 5
+
+networkConcurrency: 4
+
+allowBuilds:
+  esbuild: set this to true or false
+  tesseract.js: set this to true or false

@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    { "idx": 0, "version": "7", "when": 1792465043375, "tag": "0000_old_warlock", "breakpoints": true },
+    { "idx": 1, "version": "7", "when": 1792481132159, "tag": "0001_amused_gideon", "breakpoints": true },
+    { "idx": 2, "version": "7", "when": 1792483784342, "tag": "0002_worthless_midnight", "breakpoints": true },
+    { "idx": 3, "version": "7", "when": 1792543871250, "tag": "0003_zippy_meteorite", "breakpoints": true },
+    { "idx": 4, "version": "7", "when": 1792570000000, "tag": "0004_custom_template_variables", "breakpoints": true },
+    { "idx": 5, "version": "7", "when": 1792571000000, "tag": "0005_vendors", "breakpoints": true },
+    { "idx": 6, "version": "7", "when": 1792572000000, "tag": "0006_system_settings", "breakpoints": true }
+  ]
+}

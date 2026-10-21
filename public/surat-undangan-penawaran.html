@@ -1,0 +1,24 @@
+<div class="surat-undangan">
+  <div class="kop"><img src="https://drive.google.com/thumbnail?id=16ALwXocbkWqSbjNf5rEjMhvAU2SbrHF6&sz=w1000" alt="Kop Surat PLN Pusdiklat UPDL Palembang" style="width:100%;max-width:800px" /></div>
+  <hr />
+  <div class="meta"><table><tbody>
+    <tr><td>Nomor</td><td>:</td><td>{{nomor_urut}}/{{kode_klasifikasi}}/{{kode_unit}}/{{tahun}} <span class="tanggal">{{tanggal_surat}}</span></td></tr>
+    <tr><td>Surat Sdr No.</td><td>:</td><td>-</td></tr>
+    <tr><td>Lampiran</td><td>:</td><td>{{jumlah_lampiran}} Berkas</td></tr>
+    <tr><td>Perihal</td><td>:</td><td>{{perihal}}</td></tr>
+  </tbody></table></div>
+  <div class="tujuan"><p>Yth.</p><p><strong>{{nama_perusahaan}}</strong></p><p>{{alamat_perusahaan}}</p></div>
+  <div class="body"><p>Bersama ini kami mengundang Saudara untuk dapat memasukkan penawaran <strong>{{jenis_pekerjaan}}</strong>. Adapun penawaran tersebut kami terima selambat-lambatnya pada:</p>
+    <table class="detail"><tbody>
+      <tr><td>Hari / Tanggal</td><td>:</td><td>{{batas_tanggal}}</td></tr>
+      <tr><td>Pukul</td><td>:</td><td>{{batas_jam}} {{zona_waktu}}</td></tr>
+      <tr><td>Alamat Pengiriman</td><td>:</td><td>{{alamat_pengiriman}}</td></tr>
+      <tr><td>Email</td><td>:</td><td>{{email_vendor}}</td></tr>
+    </tbody></table>
+    <p class="kelengkapan-title">Dengan melampirkan kelengkapan sebagai berikut:</p>
+    <ol class="kelengkapan">{{#kelengkapan}}<li>{{nama}}</li>{{/kelengkapan}}</ol>
+    <p>Untuk penjelasan lebih lanjut dapat menghubungi Team Leader Pelaksana Pengadaan di nomor telepon {{telepon}} an {{team_leader}}.</p>
+    <p>Demikian Surat Undangan Penawaran ini dibuat, atas perhatian dan kerjasamanya diucapkan terima kasih.</p>
+  </div>
+  <div class="ttd"><p>TEAM LEADER</p><p>PELAKSANA PENGADAAN</p><p class="nama">{{team_leader}}</p></div>
+</div>

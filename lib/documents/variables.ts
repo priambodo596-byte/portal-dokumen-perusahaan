@@ -1,0 +1,90 @@
+export type VariableField = { key: string; label: string; elementId: string; example?: string; inputType?: 'text' | 'number' | 'date'; required?: boolean }
+export type VariableGroup = { heading: string; fields: VariableField[] }
+
+export const DOCUMENT_VARIABLES: Record<string, VariableGroup[]> = {
+  'spk-pj': [{ heading: 'Surat Perintah Kerja (SPK)', fields: [
+    { key: 'SPK_NOMOR', label: 'Nomor SPK', elementId: 'in-spk-nomor', example: '0009.Spk/HKM.02.01/F29120000/2026', required: true },
+    { key: 'SPK_TANGGAL', label: 'Tanggal SPK', elementId: 'in-spk-tgl', example: '07 Agustus 2026', required: true },
+    { key: 'VENDOR_NAMA', label: 'Nama vendor', elementId: 'in-spk-vendor', example: 'PT DUTA TRANSFORMASI INSANI', required: true },
+    { key: 'VENDOR_ALAMAT', label: 'Alamat vendor', elementId: 'in-spk-alamat', example: 'Jl. Gegergalong Girang Baru No. 4...' },
+    { key: 'SPK_NOMINAL', label: 'Nominal SPK', elementId: 'in-spk-nominal', example: 'Rp. 147.400.000,- (Seratus...)', required: true },
+    { key: 'SPK_DIREKSI', label: 'Direksi pekerjaan', elementId: 'in-spk-direksi', example: 'Assistant Manager Pelaksanaan...' },
+    { key: 'SPK_PENGAWAS', label: 'Pengawas', elementId: 'in-spk-pengawas', example: 'Team Leader Penyelenggaraan...' },
+  ] }],
+  other: [{ heading: 'Surat Undangan', fields: [
+    { key: 'UND_NOMOR', label: 'Nomor surat', elementId: 'in-und-nomor', example: '001/UND/PLN/2026', required: true },
+    { key: 'UND_TANGGAL', label: 'Tanggal surat', elementId: 'in-und-tgl', example: '01 Agustus 2026', required: true },
+    { key: 'UND_ACARA_TANGGAL', label: 'Tanggal acara', elementId: 'in-und-acara-tgl', example: 'Selasa s.d Jumat, 11 - 14 Agustus 2026' },
+    { key: 'UND_WAKTU', label: 'Waktu', elementId: 'in-und-waktu', example: '08.00 WIB s.d Selesai' },
+    { key: 'UND_TEMPAT', label: 'Tempat', elementId: 'in-und-tempat', example: 'PT PLN (Persero) UPDL JAKARTA...' },
+    { key: 'Nomor_Urut', label: 'Nomor urut surat', elementId: 'in-und-nomor-urut', example: '00023' },
+    { key: 'Kode_Klasifikasi', label: 'Kode klasifikasi', elementId: 'in-und-kode-klasifikasi', example: 'DAN.01.02' },
+    { key: 'Kode_Unit', label: 'Kode unit', elementId: 'in-und-kode-unit', example: 'F29120000' },
+    { key: 'Tahun', label: 'Tahun surat', elementId: 'in-und-tahun', example: '2026' },
+    { key: 'Tanggal_Surat', label: 'Tanggal surat', elementId: 'in-und-tanggal-surat', example: '21 Oktober 2026' },
+    { key: 'Hhh/ddd/yyyy', label: 'Format tanggal lama (legacy)', elementId: 'in-und-format-tanggal-lama', example: 'Rabu/21/2026' },
+    { key: 'Jumlah_Lampiran', label: 'Jumlah lampiran', elementId: 'in-und-jumlah-lampiran', example: '2' },
+    { key: 'prihal', label: 'Perihal surat', elementId: 'in-und-prihal', example: 'Undangan Penawaran' },
+    { key: 'Nama_Perusahaan_dan_alamat', label: 'Nama perusahaan dan alamat tujuan', elementId: 'in-und-nama-perusahaan-alamat', example: 'PT Contoh, Jl. Contoh No. 1' },
+    { key: 'Jenis_Pekerjaan', label: 'Jenis pekerjaan', elementId: 'in-und-jenis-pekerjaan', example: 'Pengadaan jasa pelatihan' },
+    { key: 'Current_Date', label: 'Tanggal saat ini (otomatis)', elementId: 'in-und-current-date', example: '21 Oktober 2026' },
+    { key: 'Current_Time', label: 'Waktu saat ini (otomatis)', elementId: 'in-und-current-time', example: '08.30' },
+    { key: 'Time_Zone', label: 'Zona waktu', elementId: 'in-und-time-zone', example: 'WIB' },
+    { key: 'AlamatVendor', label: 'Alamat vendor', elementId: 'in-und-alamat-vendor', example: 'Jl. Vendor No. 1' },
+    { key: 'EmailVendorTujuan', label: 'Email vendor tujuan', elementId: 'in-und-email-vendor', example: 'pengadaan@vendor.co.id' },
+    { key: 'No', label: 'Nomor urut persyaratan', elementId: 'in-und-persyaratan-no', example: '1' },
+    { key: 'Persyaratan_KAK', label: 'Persyaratan KAK', elementId: 'in-und-persyaratan-kak', example: 'Kerangka Acuan Kerja ditandatangani' },
+    { key: 'Formulir_IDD', label: 'Formulir IDD', elementId: 'in-und-formulir-idd', example: 'Formulir IDD terisi dan ditandatangani' },
+    { key: 'Sertifikat_CSMS', label: 'Sertifikat CSMS', elementId: 'in-und-sertifikat-csms', example: 'Sertifikat CSMS yang masih berlaku' },
+    { key: 'Komitmen_Anti_Gratifikasi', label: 'Komitmen anti gratifikasi', elementId: 'in-und-anti-gratifikasi', example: 'Surat komitmen anti gratifikasi' },
+    { key: 'Komitmen_TKDN', label: 'Komitmen TKDN', elementId: 'in-und-komitmen-tkdn', example: 'Surat komitmen TKDN' },
+    { key: 'Phone_Nomber', label: 'Nomor telepon Team Leader', elementId: 'in-und-phone-nomber', example: '081234567890' },
+    { key: 'Team_Leader', label: 'Nama Team Leader', elementId: 'in-und-team-leader', example: 'YUDIANSYAH' },
+  ] }],
+  rab: [{ heading: 'Rincian RAB', fields: [
+    { key: 'RAB_FASILITATOR', label: 'Biaya fasilitator (Rp)', elementId: 'in-rab-fas', inputType: 'number', example: '15000000' },
+    { key: 'RAB_TOOLS_SATUAN', label: 'Harga satuan tools (Rp)', elementId: 'in-rab-tools-satuan', inputType: 'number', example: '8000000' },
+    { key: 'RAB_TOOLS_VOL', label: 'Volume tools', elementId: 'in-rab-tools-vol', inputType: 'number', example: '11' },
+    { key: 'RAB_KONSUMSI_SATUAN', label: 'Harga satuan konsumsi (Rp)', elementId: 'in-rab-konsumsi-satuan', inputType: 'number', example: '1500000' },
+    { key: 'RAB_KONSUMSI_VOL', label: 'Volume konsumsi', elementId: 'in-rab-konsumsi-vol', inputType: 'number', example: '22' },
+    { key: 'RAB_SUBTOTAL', label: 'Subtotal RAB (otomatis)', elementId: 'out-rab-subtotal', inputType: 'number' },
+    { key: 'RAB_PPN', label: 'PPN 11% (otomatis)', elementId: 'out-rab-ppn', inputType: 'number' },
+    { key: 'RAB_TOTAL', label: 'Total termasuk PPN (otomatis)', elementId: 'out-rab-total', inputType: 'number' },
+  ] }],
+  quotation: [{ heading: 'Surat Penawaran Harga', fields: [
+    { key: 'PEN_NOMOR', label: 'Nomor surat', elementId: 'in-pen-nomor', example: '232/SPH/DTInsani/08/2026', required: true },
+    { key: 'PEN_TANGGAL', label: 'Tanggal surat', elementId: 'in-pen-tgl', example: '05 Agustus 2026', required: true },
+    { key: 'PEN_TOTAL', label: 'Total penawaran (Rp)', elementId: 'in-pen-total', inputType: 'number', example: '147400000', required: true },
+  ] }],
+  minutes: [{ heading: 'Berita Acara Negosiasi', fields: [
+    { key: 'NEG_NOMOR', label: 'Nomor BAKN', elementId: 'in-neg-nomor', example: '0015.BAKN/DAN.01.03/TL LAKSDA/2026', required: true },
+    { key: 'NEG_HARGA_AWAL', label: 'Harga awal (Rp)', elementId: 'in-neg-awal', inputType: 'number', example: '150960000' },
+    { key: 'NEG_HARGA_AKHIR', label: 'Harga kesepakatan (Rp)', elementId: 'in-neg-akhir', inputType: 'number', example: '147400000', required: true },
+  ] }],
+  contract: [{ heading: 'Perjanjian Kerja Sama (PKS)', fields: [
+    { key: 'PKS_NOMOR_PLN', label: 'Nomor PKS PLN', elementId: 'in-pks-nomor1', example: '001/PKS/PLN/2026', required: true },
+    { key: 'PKS_NOMOR_VENDOR', label: 'Nomor PKS vendor', elementId: 'in-pks-nomor2', example: '001/PKS/DTI/2026', required: true },
+    { key: 'PKS_TANGGAL', label: 'Tanggal PKS', elementId: 'in-pks-tgl', example: '07 Agustus 2026', required: true },
+    { key: 'PKS_NILAI', label: 'Nilai perjanjian', elementId: 'in-pks-nilai', example: 'Rp. 147.400.000,- (Seratus...)', required: true },
+  ] }],
+}
+
+export const STATIC_VARIABLES = [
+  { key: 'INSTANSI_NAMA', label: 'Nama instansi', value: 'PT PLN (PERSERO)' },
+  { key: 'INSTANSI_UNIT', label: 'Unit instansi', value: 'PUSAT PENDIDIKAN DAN PELATIHAN' },
+  { key: 'INSTANSI_ALAMAT', label: 'Alamat instansi', value: 'Jl. Bendungan No. 22 Sekip, Palembang 30126' },
+  { key: 'INSTANSI_TELP', label: 'Telepon instansi', value: '(0711) 322342' },
+  { key: 'INSTANSI_FAX', label: 'Fax instansi', value: '(0711) 312740' },
+  { key: 'INSTANSI_WEB', label: 'Website instansi', value: 'www.pln.co.id' },
+  { key: 'NAMA_MANAJER_PLN', label: 'Nama manajer PLN', value: 'SRI WIGATI' },
+  { key: 'NAMA_DIREKTUR_VENDOR', label: 'Nama direktur vendor', value: 'HERMAN' },
+  { key: 'NAMA_TEAM_LEADER', label: 'Nama team leader', value: 'YUDIANSYAH' },
+  { key: 'NAMA_ASMAN', label: 'Nama Asman', value: 'IRCHAM NOVANTO' },
+  { key: 'NAMA_PEKERJAAN', label: 'Nama pekerjaan', value: 'Pengadaan Penyelenggaraan Pembelajaran Pembekalan Masa Purnabakti Entrepreneurship Program Bisnis Usaha Bakery and Snack Tahun 2026' },
+  { key: 'TEMPAT_PELAKSANAAN', label: 'Tempat pelaksanaan', value: 'PT PLN (Persero) UPDL JAKARTA Unit Satelit Cengkareng' },
+  { key: 'WAKTU_ICT', label: 'Waktu ICT', value: '11 - 14 Agustus 2026' },
+  { key: 'DURASI_ACTION_LEARNING', label: 'Durasi action learning', value: '6 (enam) bulan' },
+] as const
+
+export const getDocumentVariableGroups = (type: string) => DOCUMENT_VARIABLES[type] ?? []
+export const getDefaultStaticFields = () => Object.fromEntries(STATIC_VARIABLES.map((v) => [v.key, v.value]))
