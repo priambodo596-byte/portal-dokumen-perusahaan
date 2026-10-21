@@ -10,6 +10,7 @@ fetchRetries: 5
 
 networkConcurrency: 4
 
+# Explicitly permit required dependency install/build scripts in CI and deployment.
 allowBuilds:
-  esbuild: set this to true or false
-  tesseract.js: set this to true or false
+  esbuild: true
+  tesseract.js: true
