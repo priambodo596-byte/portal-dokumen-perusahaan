@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Copy, FileUp, Pencil, Plus, Search, Star, Trash2 } from 'lucide-react'
+import { Copy, Eye, FileUp, Pencil, Plus, Search, Star, Trash2 } from 'lucide-react'
 import { DOCUMENT_TYPES } from '@/lib/documents/constants'
 import { api, ConfirmDialog, EmptyState, postForm, Toast } from './shared'
 import TemplateStudio, { type Draft, type TemplateRecord } from './template-studio'
@@ -14,7 +14,7 @@ const toDraft = (t: TemplateRecord): Draft => ({ name: t.name, type: t.type, des
 const fmtDate = (v: Date | string) => new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(v))
 const typeLabel = (v: string) => DOCUMENT_TYPES.find((x) => x.value === v)?.label ?? v
 
-type Session = { draft: Draft; editingId: string | null; key: string }
+type Session = { draft: Draft; editingId: string | null; key: string; readOnly: boolean }
 
 export default function TemplateManager({ initialTemplates, canManage, userName }: { initialTemplates: TemplateRecord[]; canManage: boolean; userName: string }) {
   const [templates, setTemplates] = useState(initialTemplates)
@@ -32,8 +32,8 @@ export default function TemplateManager({ initialTemplates, canManage, userName 
   const notify = useCallback((message: string, kind: 'ok' | 'error' = 'ok') => { setToast({ message, kind }); window.setTimeout(() => setToast(null), 3200) }, [])
   const visible = templates.filter((t) => `${t.name} ${typeLabel(t.type)} ${t.description ?? ''} ${t.mode}`.toLowerCase().includes(query.trim().toLowerCase()))
 
-  const open = useCallback((t: TemplateRecord) => setSession({ draft: toDraft(t), editingId: t.id, key: t.id }), [])
-  const startNew = useCallback((draft: Draft = blank()) => setSession({ draft, editingId: null, key: `new-${++counter.current}` }), [])
+  const open = useCallback((t: TemplateRecord, readOnly = false) => setSession({ draft: toDraft(t), editingId: t.id, key: `${t.id}-${readOnly ? 'preview' : 'edit'}`, readOnly }), [])
+  const startNew = useCallback((draft: Draft = blank()) => setSession({ draft, editingId: null, key: `new-${++counter.current}`, readOnly: false }), [])
 
   // Tautan langsung /templates?edit=<id>
   useEffect(() => {
@@ -96,7 +96,7 @@ export default function TemplateManager({ initialTemplates, canManage, userName 
 
   return <div className={`template-workspace ${session ? 'template-studio-open' : ''}`}>
     {session
-      ? <TemplateStudio key={session.key} initial={session.draft} editingId={session.editingId} canManage={canManage} userName={userName} onClose={() => setSession(null)} onSaved={onSaved} />
+      ? <TemplateStudio key={session.key} initial={session.draft} editingId={session.editingId} canManage={canManage && !session.readOnly} userName={userName} onClose={() => setSession(null)} onSaved={onSaved} />
       : <section className="panel form-section template-list-section">
         <div className="panel-heading">
           <div><h2>Daftar template</h2><p>Pilih template untuk diedit atau buat template baru. Template default dipakai saat dokumen diekspor ke Word/PDF.</p></div>
@@ -118,6 +118,7 @@ export default function TemplateManager({ initialTemplates, canManage, userName 
             <td>{fmtDate(t.updatedAt)}</td>
             <td>{t.isDefault ? <span className="status-badge status-approved">Default</span> : '—'}</td>
             <td><div className="row-actions">
+              <button className="icon-button" title="Pratinjau template" aria-label={`Pratinjau ${t.name}`} type="button" onClick={() => open(t, true)}><Eye size={15} /></button>
               <button className="secondary-button" type="button" onClick={() => open(t)}><Pencil size={14} /> {canManage ? 'Edit' : 'Lihat'}</button>
               {canManage && <>
                 <button className="icon-button" title="Duplikat template" aria-label={`Duplikat ${t.name}`} type="button" onClick={() => void duplicate(t)}><Copy size={15} /></button>
