@@ -1,4 +1,3 @@
-import { Extension } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import TextAlign from '@tiptap/extension-text-align'
 import { Table } from '@tiptap/extension-table'
@@ -13,7 +12,7 @@ import type { Node as PMNode } from '@tiptap/pm/model'
 const TOKEN_RE = /\{\{[^{}]+\}\}/g
 
 /** Sorot token {{variabel}} (ungu) di dalam editor tanpa mengubah isi dokumen. */
-export const VariableHighlight = Extension.create({
+export const VariableHighlight = {
   name: 'variableHighlight',
   addProseMirrorPlugins() {
     const build = (doc: PMNode) => {
@@ -33,7 +32,7 @@ export const VariableHighlight = Extension.create({
       props: { decorations(state) { return this.getState(state) } },
     })]
   },
-})
+} as any
 
 /** Baris tabel yang diulang per item dokumen ({{#items}}). Disimpan sebagai atribut data-each. */
 export const LoopRow = TableRow.extend({
