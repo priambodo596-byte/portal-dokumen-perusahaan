@@ -98,6 +98,19 @@ function renderItemBlock(tpl: string, data: TemplateData): string {
  * - Blok {{#items}}...{{/items}} diulang untuk tiap item.
  * - {{token}} diganti nilainya (di-escape). Token tak dikenal dibiarkan agar terlihat saat menyusun.
  */
+export function extractTemplateParts(bodyHtml: string): { body: string; header: string; footer: string; css: string } {
+  let body = bodyHtml
+  const styleBlocks = [...body.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)]
+  const css = styleBlocks.map((match) => match[1]).join('\n')
+  body = body.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+  const header = body.match(/<header\b[^>]*>[\s\S]*?<\/header>/i)?.[0] ?? ''
+  const footer = body.match(/<footer\b[^>]*>[\s\S]*?<\/footer>/i)?.[0] ?? ''
+  if (header) body = body.replace(header, '')
+  if (footer) body = body.replace(footer, '')
+  body = body.replace(/<!doctype[^>]*>/gi, '').replace(/<\/?(?:html|head|body|main)\b[^>]*>/gi, '')
+  return { body, header, footer, css }
+}
+
 export function renderTemplate(bodyHtml: string, data: TemplateData): string {
   // Loop kelengkapan terpisah dari items agar template pengadaan dapat memakai nama variabel aslinya.
   const defaultKelengkapan = [

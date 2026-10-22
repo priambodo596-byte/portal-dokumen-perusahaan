@@ -4,7 +4,7 @@ import { DOCUMENT_TYPE_VALUES } from '@/lib/documents/constants'
 import { safeFileName } from '@/lib/documents/filenames'
 import { htmlToDocx } from '@/lib/templates/convert'
 import { htmlToPdf } from '@/lib/templates/pdf'
-import { renderTemplate } from '@/lib/templates/render'
+import { extractTemplateParts, renderTemplate } from '@/lib/templates/render'
 import { sanitizeTemplateHtml } from '@/lib/templates/sanitize'
 import { sampleTemplateData } from '@/lib/templates/service'
 
@@ -25,13 +25,18 @@ const schema = z.object({
 export const POST = route(async (req) => {
   const input = schema.parse(await readJson(req))
   const data = sampleTemplateData(input.type)
-  const body = sanitizeTemplateHtml(renderTemplate(input.bodyHtml, data))
-  const header = sanitizeTemplateHtml(renderTemplate(input.headerHtml, data))
-  const footer = sanitizeTemplateHtml(renderTemplate(input.footerHtml, data))
+  const extracted = extractTemplateParts(input.bodyHtml)
+  const bodySource = extracted.body
+  const headerSource = input.headerHtml.trim() || extracted.header
+  const footerSource = input.footerHtml.trim() || extracted.footer
+  const body = sanitizeTemplateHtml(renderTemplate(bodySource, data))
+  const header = sanitizeTemplateHtml(renderTemplate(headerSource, data))
+  const footer = sanitizeTemplateHtml(renderTemplate(footerSource, data))
+  const css = [extracted.css, input.css].filter(Boolean).join('\n')
   const base = safeFileName(input.name.replace(/\.(docx|pdf)$/i, ''), 'template')
 
   const buffer = input.format === 'docx'
-    ? await htmlToDocx(body, input.css, header, footer, { title: input.name || 'Template' })
+    ? await htmlToDocx(body, css, header, footer, { title: input.name || 'Template' })
     : await htmlToPdf(body, { title: input.name || 'Template', header, footer })
 
   return new Response(new Uint8Array(buffer), {
