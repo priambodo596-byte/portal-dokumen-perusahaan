@@ -3,7 +3,7 @@ import { can } from '@/lib/permissions'
 import { getDocumentDetail, recordAction } from '@/lib/documents/service'
 import { htmlToDocx } from './convert'
 import { renderTemplate } from './render'
-import { buildTemplateData, resolveTemplateForDocument } from './service'
+import { buildTemplateData, getConfiguredLetterhead, resolveTemplateForDocument } from './service'
 
 /** Hasil render template yang siap dikonversi ke DOCX. */
 export async function renderDocumentHtml(ctx: Ctx, id: string, overrideTemplateId?: string | null) {
@@ -12,11 +12,13 @@ export async function renderDocumentHtml(ctx: Ctx, id: string, overrideTemplateI
   const template = await resolveTemplateForDocument(d.type, overrideTemplateId ?? d.templateId)
   if (!template) throw new ApiError(409, 'Dokumen ini belum memiliki template. Unggah template default untuk jenis dokumen ini terlebih dahulu.')
   const data = await buildTemplateData(d)
+  const configuredLetterhead = await getConfiguredLetterhead()
+  const headerSource = template.headerHtml.trim() || configuredLetterhead
   return {
     detail: d,
     template,
     body: renderTemplate(template.bodyHtml, data),
-    header: renderTemplate(template.headerHtml, data),
+    header: renderTemplate(headerSource, data),
     footer: renderTemplate(template.footerHtml, data),
     css: template.css,
   }

@@ -7,6 +7,9 @@ import { htmlToPdf } from '@/lib/templates/pdf'
 import { extractTemplateParts, renderTemplate } from '@/lib/templates/render'
 import { sanitizeTemplateHtml } from '@/lib/templates/sanitize'
 import { sampleTemplateData } from '@/lib/templates/service'
+import { db } from '@/lib/db'
+import { systemSettings } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 
 export const runtime = 'nodejs'
 export const maxDuration = 60
@@ -26,8 +29,12 @@ export const POST = route(async (req) => {
   const input = schema.parse(await readJson(req))
   const data = sampleTemplateData(input.type)
   const extracted = extractTemplateParts(input.bodyHtml)
+  const [settingsRow] = await db.select({ value: systemSettings.value }).from(systemSettings).where(eq(systemSettings.id, 'global')).limit(1)
+  const settings = (settingsRow?.value ?? {}) as Record<string, unknown>
+  const configuredLetterhead = typeof settings.letterheadHtml === 'string' ? settings.letterheadHtml : ''
   const bodySource = extracted.body
-  const headerSource = input.headerHtml.trim() || extracted.header
+  // Kop dari Pengaturan Sistem menjadi fallback agar tetap ikut saat template tidak memiliki header sendiri.
+  const headerSource = input.headerHtml.trim() || extracted.header || configuredLetterhead
   const footerSource = input.footerHtml.trim() || extracted.footer
   const body = sanitizeTemplateHtml(renderTemplate(bodySource, data))
   const header = sanitizeTemplateHtml(renderTemplate(headerSource, data))

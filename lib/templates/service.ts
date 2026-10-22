@@ -138,6 +138,12 @@ export async function setDefaultTemplate(id: string): Promise<TemplateRow> {
 }
 
 /** Bangun data render dari detail dokumen. */
+export async function getConfiguredLetterhead(): Promise<string> {
+  const [row] = await db.select({ value: systemSettings.value }).from(systemSettings).where(eq(systemSettings.id, 'global')).limit(1)
+  const value = (row?.value ?? {}) as Record<string, unknown>
+  return typeof value.letterheadHtml === 'string' ? value.letterheadHtml : ''
+}
+
 export async function buildTemplateData(d: {
   documentNumber: string; title: string; type: string; status: string; documentDate: string; notes: string | null
   subtotal: number; discount: number; taxRate: string; taxAmount: number; total: number; creatorName: string | null
