@@ -213,6 +213,21 @@ export async function listProjectsWithStats() {
   return rows
 }
 
+/** Data dashboard utama, dihitung langsung dari dokumen yang tersimpan. */
+export async function getDashboardSummary() {
+  const [total, pending, published, value, recent, activity] = await Promise.all([
+    db.select({ count: sql<number>`count(*)::int` }).from(documents).where(isNull(documents.deletedAt)),
+    db.select({ count: sql<number>`count(*)::int` }).from(documents).where(and(isNull(documents.deletedAt), or(eq(documents.status, 'pending'), eq(documents.status, 'review')))),
+    db.select({ count: sql<number>`count(*)::int` }).from(documents).where(and(isNull(documents.deletedAt), or(eq(documents.status, 'published'), eq(documents.status, 'approved')))),
+    db.select({ total: sql<number>`coalesce(sum(${documents.total}), 0)::bigint` }).from(documents).where(and(isNull(documents.deletedAt), or(eq(documents.status, 'approved'), eq(documents.status, 'published')))),
+    db.select({ documentNumber: documents.documentNumber, title: documents.title, type: documents.type, status: documents.status })
+      .from(documents).where(isNull(documents.deletedAt)).orderBy(desc(documents.updatedAt), desc(documents.id)).limit(5),
+    db.select({ month: sql<string>`to_char(date_trunc('month', ${documents.createdAt}), 'YYYY-MM')`, count: sql<number>`count(*)::int` })
+      .from(documents).where(and(isNull(documents.deletedAt), gte(documents.createdAt, sql`now() - interval '11 months'`))).groupBy(sql`date_trunc('month', ${documents.createdAt})`).orderBy(sql`date_trunc('month', ${documents.createdAt})`),
+  ])
+  return { total: total[0]?.count ?? 0, pending: pending[0]?.count ?? 0, published: published[0]?.count ?? 0, value: Number(value[0]?.total ?? 0), recent, activity }
+}
+
 /** Ringkasan operasional untuk halaman laporan. */
 export async function getReportsSummary() {
   const [byStatus, byType, totals] = await Promise.all([
