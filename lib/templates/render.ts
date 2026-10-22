@@ -22,6 +22,8 @@ function resolveToken(path: string, data: TemplateData, item?: Record<string, un
   const now = new Date()
   const today = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' }).format(now)
   const aliases: Record<string, unknown> = {
+    leaderName: data.company.leaderName,
+    leaderTitle: data.company.leaderTitle,
     Nomor_Urut: data.Nomor_Urut ?? data.documentNumber,
     Kode_Klasifikasi: data.Kode_Klasifikasi,
     Kode_Unit: data.Kode_Unit,

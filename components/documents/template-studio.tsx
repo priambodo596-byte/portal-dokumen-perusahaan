@@ -266,7 +266,7 @@ export default function TemplateStudio({ initial, editingId: initialId, canManag
         <input className="studio-title-input" aria-label="Nama template" value={draft.name} disabled={!canManage} onChange={(e) => set({ name: e.target.value })} placeholder="Nama template, mis. Surat Penawaran Resmi" />
         <small title="Draf otomatis disimpan di perangkat ini sampai Anda menekan Save & Continue">{dirty ? 'Draft / Auto-saved · belum disimpan ke server' : editingId ? 'Tersimpan' : 'Draft baru'}</small>
       </div>
-      <div className="studio-breadcrumb">Templates <span>›</span> {editingId ? 'Edit Template' : 'Create New'}</div>
+      <div className="studio-breadcrumb">Template dokumen <span>›</span> {editingId ? 'Edit template' : 'Tambah template'}</div>
       <div className="studio-top-actions">
         <div className="studio-menu-wrap" data-menu-root>
           <button type="button" className="studio-share" aria-haspopup="menu" aria-expanded={menu === 'share'} onClick={() => setMenu(menu === 'share' ? null : 'share')}><Share2 size={15} /> Share</button>

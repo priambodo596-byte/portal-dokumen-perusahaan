@@ -3,6 +3,9 @@ import { json, readJson, route } from '@/lib/api'
 import { renderTemplate } from '@/lib/templates/render'
 import { sanitizeTemplateHtml } from '@/lib/templates/sanitize'
 import { sampleTemplateData } from '@/lib/templates/sample-data'
+import { db } from '@/lib/db'
+import { systemSettings } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 
 export const runtime = 'nodejs'
 
@@ -18,6 +21,9 @@ const schema = z.object({
 export const POST = route(async (req) => {
   const { type, bodyHtml, css, headerHtml, footerHtml } = schema.parse(await readJson(req))
   const data = sampleTemplateData(type)
+  const [settingsRow] = await db.select({ value: systemSettings.value }).from(systemSettings).where(eq(systemSettings.id, 'global')).limit(1)
+  const settings = (settingsRow?.value ?? {}) as Record<string, unknown>
+  data.company = { ...data.company, name: String(settings.companyLegalName || settings.companyName || data.company.name), address: String(settings.companyAddress || data.company.address), phone: String(settings.companyPhone || data.company.phone), email: String(settings.companyEmail || data.company.email), website: String(settings.companyWebsite || data.company.website), npwp: String(settings.companyTaxId || data.company.npwp), leaderName: String(settings.leaderName || ''), leaderTitle: String(settings.leaderTitle || '') }
 
   // Jika pengguna menempelkan satu dokumen HTML penuh (termasuk <style>, <header>, <main>, dan <footer>),
   // pecah menjadi bagian preview agar kop surat tidak hilang atau tertimbun di area isi.

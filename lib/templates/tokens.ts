@@ -6,7 +6,7 @@ export type TemplateData = {
   typeLabel: string
   status: string
   documentDate: string
-  company: { name: string; address: string; phone: string; email: string; website: string; npwp: string; tagline?: string }
+  company: { name: string; address: string; phone: string; email: string; website: string; npwp: string; tagline?: string; leaderName?: string; leaderTitle?: string }
   client: { name: string; address: string; contactPerson: string; email: string; phone: string } | null
   project: { name: string; code: string } | null
   creatorName: string
@@ -188,6 +188,8 @@ export const TOKEN_GROUPS: { label: string; tokens: { token: string; label: stri
       { token: 'company.website', label: 'Website Perusahaan' },
       { token: 'company.npwp', label: 'NPWP Perusahaan' },
       { token: 'company.tagline', label: 'Tagline' },
+      { token: 'company.leaderName', label: 'Nama Pimpinan' },
+      { token: 'company.leaderTitle', label: 'Jabatan Pimpinan' },
     ],
   },
 ]
