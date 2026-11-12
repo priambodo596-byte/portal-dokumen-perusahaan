@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto'
-import { and, asc, desc, eq, gte, ilike, isNull, lte, or, sql, type SQL } from 'drizzle-orm'
+import { and, asc, desc, eq, gte, ilike, inArray, isNull, lte, or, sql, type SQL } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { auditLogs, clients, documentCounters, documentFiles, documentItems, documents, documentVersions, projects, user } from '@/lib/db/schema'
 import { ApiError, type Ctx } from '@/lib/api'
@@ -7,6 +7,7 @@ import { can } from '@/lib/permissions'
 import { computeTotals } from './calc'
 import { DELETABLE_STATUSES, DOCUMENT_TYPES, EDITABLE_STATUSES, statusMeta, transitionByAction, type DocumentStatus } from './constants'
 import type { DocumentInput, DocumentUpdate, ListQuery, TransitionInput } from './schemas'
+import { standardCodeIsVisible, standardRegistry } from '@/lib/templates/standard-registry'
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0]
 const newId = () => randomUUID()
@@ -40,6 +41,11 @@ async function loadRow(tx: Tx | typeof db, id: string) {
   const [row] = await tx.select().from(documents).where(and(eq(documents.id, id), isNull(documents.deletedAt))).limit(1)
   if (!row) throw new ApiError(404, 'Dokumen tidak ditemukan.')
   return row
+}
+
+function assertStandardDocumentAccess(fields: Record<string, string>, role: string) {
+  const code = fields?._standard_code
+  if (code && !standardCodeIsVisible(code, role)) throw new ApiError(404, 'Dokumen tidak ditemukan.')
 }
 
 async function writeItems(tx: Tx, documentId: string, items: DocumentInput['items'], lines: number[]) {
@@ -84,6 +90,7 @@ export async function createDocument(ctx: Ctx, input: DocumentInput) {
 export async function updateDocument(ctx: Ctx, id: string, input: DocumentUpdate, expectedVersion?: number) {
   return db.transaction(async (tx) => {
     const cur = await loadRow(tx, id)
+    assertStandardDocumentAccess(cur.fields, ctx.role)
     if (!can(ctx.role, 'edit', { userId: ctx.userId, ownerId: cur.createdBy })) throw new ApiError(403, 'Anda tidak berhak mengubah dokumen ini.')
     if (!EDITABLE_STATUSES.includes(cur.status)) throw new ApiError(409, 'Dokumen yang sudah diajukan, disetujui, atau diterbitkan tidak dapat diubah. Gunakan revisi.')
     if (expectedVersion !== undefined && expectedVersion !== cur.version) throw new ApiError(409, 'Dokumen sudah diubah pengguna lain. Muat ulang halaman lalu coba lagi.')
@@ -113,6 +120,7 @@ export async function updateDocument(ctx: Ctx, id: string, input: DocumentUpdate
 export async function deleteDocument(ctx: Ctx, id: string) {
   return db.transaction(async (tx) => {
     const cur = await loadRow(tx, id)
+    assertStandardDocumentAccess(cur.fields, ctx.role)
     if (!can(ctx.role, 'delete', { userId: ctx.userId, ownerId: cur.createdBy })) throw new ApiError(403, 'Anda tidak berhak menghapus dokumen ini.')
     if (!DELETABLE_STATUSES.includes(cur.status)) throw new ApiError(409, 'Dokumen yang sedang diproses persetujuan atau sudah diterbitkan tidak dapat dihapus.')
     await tx.update(documents).set({ deletedAt: new Date(), deletedBy: ctx.userId }).where(eq(documents.id, id))
@@ -128,6 +136,7 @@ export async function transitionDocument(ctx: Ctx, id: string, input: Transition
   if (def.requiresNote && !input.note?.trim()) throw new ApiError(422, 'Catatan wajib diisi untuk aksi ini.', { note: 'Catatan wajib diisi.' })
   return db.transaction(async (tx) => {
     const cur = await loadRow(tx, id)
+    assertStandardDocumentAccess(cur.fields, ctx.role)
     if (expectedMismatch(input.expectedVersion, cur.version)) throw new ApiError(409, 'Dokumen sudah diubah pengguna lain. Muat ulang halaman lalu coba lagi.')
     if (!def.from.includes(cur.status as DocumentStatus))
       throw new ApiError(409, `Tidak dapat "${def.label}" dari status "${statusMeta(cur.status).label}".`)
@@ -150,6 +159,7 @@ export async function duplicateDocument(ctx: Ctx, id: string) {
   if (!can(ctx.role, 'create')) throw new ApiError(403, 'Anda tidak berhak membuat dokumen.')
   return db.transaction(async (tx) => {
     const src = await snapshot(tx, id)
+    assertStandardDocumentAccess(src.document.fields, ctx.role)
     const today = new Date().toISOString().slice(0, 10)
     const newDocId = newId()
     const documentNumber = await nextNumber(tx, src.document.type, Number(today.slice(0, 4)))
@@ -167,8 +177,13 @@ export async function duplicateDocument(ctx: Ctx, id: string) {
   })
 }
 
-export async function listDocuments(q: ListQuery) {
+export async function listDocuments(q: ListQuery, role = 'admin') {
   const conds: SQL[] = [isNull(documents.deletedAt)]
+  if (role !== 'admin' && role !== 'manager') {
+    const internalCodes = standardRegistry.documents.filter((document) => document.classification === 'internal').map((document) => document.code)
+    const standardCode = sql<string | null>`${documents.fields}->>'_standard_code'`
+    conds.push(or(isNull(standardCode), inArray(standardCode, internalCodes))!)
+  }
   if (q.q) {
     const like = `%${q.q.replace(/[%_\\]/g, '\\$&')}%`
     const typeHits = DOCUMENT_TYPES.filter((t) => t.label.toLowerCase().includes(q.q!.toLowerCase())).map((t) => t.value)
@@ -242,10 +257,11 @@ export async function listDocumentFiles(documentId: string): Promise<StoredFile[
   }).from(documentFiles).leftJoin(user, eq(documentFiles.uploadedBy, user.id)).where(eq(documentFiles.documentId, documentId)).orderBy(desc(documentFiles.createdAt))
 }
 
-export async function getFileForDownload(fileId: string) {
+export async function getFileForDownload(fileId: string, role = 'admin') {
   const [row] = await db.select().from(documentFiles).where(eq(documentFiles.id, fileId)).limit(1)
   if (!row) throw new ApiError(404, 'File tidak ditemukan.')
   const doc = await loadRow(db, row.documentId)
+  assertStandardDocumentAccess(doc.fields, role)
   return { file: row, documentId: doc.id, createdBy: doc.createdBy }
 }
 
@@ -279,8 +295,9 @@ export async function createImportedDocument(ctx: Ctx, input: DocumentInput, sou
   })
 }
 
-export async function getDocumentDetail(id: string) {
+export async function getDocumentDetail(id: string, role = 'admin') {
   const row = await loadRow(db, id)
+  assertStandardDocumentAccess(row.fields, role)
   const [items, versions, logs, client, project, creator, files] = await Promise.all([
     db.select().from(documentItems).where(eq(documentItems.documentId, id)).orderBy(asc(documentItems.position)),
     db.select({ version: documentVersions.version, changeNote: documentVersions.changeNote, createdAt: documentVersions.createdAt, createdBy: documentVersions.createdBy, userName: user.name })

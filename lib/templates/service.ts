@@ -3,7 +3,7 @@ import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { db } from '@/lib/db'
 import { systemSettings, templates, templateVersions } from '@/lib/db/schema'
 import { ApiError } from '@/lib/api'
-import { COMPANY } from '@/lib/company'
+import { COMPANY, COMPANY_TAGLINE } from '@/lib/company'
 import { typeLabel } from '@/lib/documents/constants'
 import { sanitizeTemplateHtml } from './sanitize'
 import type { TemplateData } from './tokens'
@@ -148,7 +148,7 @@ export async function buildTemplateData(d: {
 }): Promise<TemplateData> {
   const [settingsRow] = await db.select({ value: systemSettings.value }).from(systemSettings).where(eq(systemSettings.id, 'global')).limit(1)
   const settings = (settingsRow?.value ?? {}) as Record<string, unknown>
-  const company = { ...COMPANY, name: String(settings.companyLegalName || settings.companyName || COMPANY.name), address: String(settings.companyAddress || COMPANY.address), phone: String(settings.companyPhone || COMPANY.phone), email: String(settings.companyEmail || COMPANY.email), website: String(settings.companyWebsite || COMPANY.website), npwp: String(settings.companyTaxId || COMPANY.npwp) }
+  const company = { ...COMPANY, tagline: COMPANY_TAGLINE, name: String(settings.companyLegalName || settings.companyName || COMPANY.name), address: String(settings.companyAddress || COMPANY.address), phone: String(settings.companyPhone || COMPANY.phone), email: String(settings.companyEmail || COMPANY.email), website: String(settings.companyWebsite || COMPANY.website), npwp: String(settings.companyTaxId || COMPANY.npwp) }
   return {
     documentNumber: d.documentNumber, title: d.title, type: d.type, typeLabel: typeLabel(d.type), status: d.status,
     documentDate: d.documentDate, company, creatorName: d.creatorName ?? '', notes: d.notes ?? '',

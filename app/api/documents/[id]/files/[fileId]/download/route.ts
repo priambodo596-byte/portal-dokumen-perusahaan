@@ -7,7 +7,7 @@ import { safeFileName } from '@/lib/documents/filenames'
 export const runtime = 'nodejs'
 
 export const GET = route<{ id: string; fileId: string }>(async (_req, ctx, { id, fileId }) => {
-  const { file, documentId, createdBy } = await getFileForDownload(fileId)
+  const { file, documentId, createdBy } = await getFileForDownload(fileId, ctx.role)
   if (documentId !== id) throw new ApiError(404, 'File tidak ditemukan pada dokumen ini.')
   if (!can(ctx.role, 'read', { userId: ctx.userId, ownerId: createdBy })) throw new ApiError(403, 'Anda tidak berhak mengunduh file ini.')
   const name = safeFileName(file.fileName, 'file')

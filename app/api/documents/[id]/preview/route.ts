@@ -8,10 +8,10 @@ export const runtime = 'nodejs'
 type P = { id: string }
 
 /** Pratinjau dokumen memakai template yang berlaku (override dokumen atau default jenis). */
-export const GET = route<P>(async (req, _ctx, { id }) => {
+export const GET = route<P>(async (req, ctx, { id }) => {
   const url = new URL(req.url)
   const override = url.searchParams.get('templateId')
-  const d = await getDocumentDetail(id)
+  const d = await getDocumentDetail(id, ctx.role)
   const template = await resolveTemplateForDocument(d.type, override ?? d.templateId)
   if (!template) {
     return json({ template: null, body: '', header: '', footer: '', css: '' })

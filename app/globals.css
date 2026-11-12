@@ -98,6 +98,75 @@ button { cursor: pointer; }
 @media (max-width: 390px) { .stat-grid.cols-3 { grid-template-columns: 1fr; } }
 
 .heading-actions { display: flex; gap: 9px; flex-wrap: wrap; }
+
+/* Katalog standar dokumen PT.Palos */
+.standard-catalog-stats { margin-bottom: 16px; }
+.standard-catalog-stats .stat-card { min-height: 128px; }
+.standard-catalog-stats .stat-card > strong { font-size: clamp(20px, 2vw, 27px); }
+.standard-catalog-stats .stat-card small { color: var(--muted); line-height: 1.45; }
+.standard-catalog-panel { overflow: hidden; }
+.standard-catalog-heading { align-items: center; }
+.standard-heading-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.standard-upload-button { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+.standard-upload-button.disabled { opacity: .55; cursor: wait; }
+.standard-upload-status { margin: -8px 0 14px; color: var(--muted); font-size: 11px; }
+.standard-policy { display: inline-flex; align-items: center; gap: 7px; padding: 8px 10px; border-radius: 7px; color: #176746; background: #e8f6ef; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.standard-filters { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(220px, 300px) auto; align-items: center; gap: 10px; margin-bottom: 13px; }
+.standard-filters .template-list-search { min-height: 38px; }
+.standard-document-list { border-top: 1px solid var(--line); }
+.standard-document { border-bottom: 1px solid var(--line); }
+.standard-document summary { display: grid; grid-template-columns: 86px minmax(160px, 1fr) minmax(150px, auto); align-items: center; gap: 13px; padding: 14px 4px; cursor: pointer; list-style: none; }
+.standard-document summary::-webkit-details-marker { display: none; }
+.standard-document summary::after { content: '⌄'; color: var(--muted); font-size: 18px; grid-column: 3; grid-row: 1; justify-self: end; }
+.standard-document[open] summary::after { content: '⌃'; }
+.standard-code { color: var(--blue); background: var(--blue-soft); border-radius: 5px; font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace; padding: 6px 8px; width: fit-content; }
+.standard-document-title { display: grid; gap: 4px; }
+.standard-document-title strong { color: var(--navy); font-size: 12px; }
+.standard-document-title small, .standard-document-meta { color: var(--muted); font-size: 10px; }
+.standard-document-meta { display: flex; flex-wrap: wrap; gap: 5px; padding-right: 17px; }
+.standard-document-meta span { background: #f4f6fa; border: 1px solid var(--line); border-radius: 5px; padding: 4px 6px; }
+.standard-document-detail { padding: 2px 8px 18px 103px; }
+.standard-detail-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
+.standard-detail-grid > div { display: grid; align-content: start; gap: 4px; padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: #fbfcfe; }
+.standard-detail-grid small { color: var(--muted); font-size: 10px; }
+.standard-detail-grid strong { color: var(--navy); font-size: 11px; line-height: 1.45; }
+.standard-blocks { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 13px; }
+.standard-blocks span { background: #fff7e8; border: 1px solid #f0dfb7; color: #805800; border-radius: 5px; padding: 5px 7px; font-size: 10px; }
+.standard-fields-wrap h3 { color: var(--navy); font-size: 12px; margin: 0 0 8px; }
+.standard-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.standard-field { display: grid; gap: 4px; min-width: 0; padding: 8px 9px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.standard-field code { color: #334d91; font-size: 10px; overflow-wrap: anywhere; }
+.standard-field span, .standard-field small { color: var(--muted); font-size: 9px; line-height: 1.4; }
+.standard-note { margin: 13px 0 0; padding: 10px 11px; border-left: 3px solid #e0a83c; background: #fffaf0; color: #70551e; font-size: 10px; line-height: 1.55; }
+.standard-document-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+.standard-source-pending { color: var(--muted); font-size: 10px; align-self: center; }
+.standard-draft-summary { margin-bottom: 16px; }
+.standard-draft-policy { display: flex; align-items: flex-start; gap: 8px; margin-top: 16px; padding: 11px 12px; border: 1px solid #cde8d9; border-radius: 7px; color: #176746; background: #f0faf4; font-size: 11px; line-height: 1.5; }
+.standard-draft-policy svg { flex: 0 0 auto; }
+.standard-form-hint { margin: -8px 0 14px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.standard-form-hint code { color: #334d91; overflow-wrap: anywhere; }
+.standard-fields-form-grid { row-gap: 13px; }
+.standard-json-field { min-height: 130px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; }
+@media (max-width: 760px) {
+  .standard-filters { grid-template-columns: 1fr; }
+  .standard-filters .template-count { justify-self: end; }
+  .standard-document summary { grid-template-columns: 68px minmax(120px, 1fr) 20px; gap: 9px; }
+  .standard-document summary::after { grid-column: 3; }
+  .standard-document-meta { grid-column: 2 / -1; padding-right: 0; }
+  .standard-document-detail { padding: 0 3px 16px; }
+  .standard-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 430px) {
+  .standard-catalog-heading { align-items: flex-start; }
+  .standard-heading-actions { align-items: flex-start; }
+  .standard-policy { white-space: normal; }
+  .standard-document summary { grid-template-columns: 1fr 20px; }
+  .standard-code { grid-column: 1; }
+  .standard-document-title { grid-column: 1; }
+  .standard-document summary::after { grid-column: 2; grid-row: 1; }
+  .standard-document-meta { grid-column: 1 / -1; }
+  .standard-detail-grid, .standard-fields { grid-template-columns: 1fr; }
+}
 .dropzone { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; border: 2px dashed var(--line); border-radius: 10px; padding: 34px 20px; color: var(--muted); transition: border-color .15s, background .15s; }
 .dropzone svg { color: var(--blue); }
 .dropzone p { margin: 0; font-size: 12px; }

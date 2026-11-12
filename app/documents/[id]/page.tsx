@@ -21,7 +21,7 @@ const KIND_LABEL: Record<string, string> = { attachment: 'Lampiran', 'import-sou
 export default async function DocumentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { userId, role } = await requireSession()
   const { id } = await params
-  const d = await getDocumentDetail(id).catch((e) => { if (e instanceof ApiError && e.status === 404) notFound(); throw e })
+  const d = await getDocumentDetail(id, role).catch((e) => { if (e instanceof ApiError && e.status === 404) notFound(); throw e })
   return <Dashboard initialRoute="documents">
     <Link href="/documents" className="back-link"><ChevronLeft size={13} /> Kembali ke daftar</Link>
     <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> {typeLabel(d.type)} · {d.documentNumber}</div><h1>{d.title}</h1><p><DocumentStatusBadge status={d.status} /> &nbsp;Versi {d.version}</p></div>

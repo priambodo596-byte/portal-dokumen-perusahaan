@@ -14,7 +14,7 @@ export type ExportData = {
 
 /** Ambil & validasi dokumen untuk export sesuai hak akses pembaca. */
 export async function loadForExport(ctx: Ctx, id: string): Promise<ExportData & { id: string }> {
-  const d = await getDocumentDetail(id)
+  const d = await getDocumentDetail(id, ctx.role)
   if (!can(ctx.role, 'read')) throw new ApiError(403, 'Anda tidak berhak mengunduh dokumen ini.')
   const { db } = await import('@/lib/db')
   const { systemSettings } = await import('@/lib/db/schema')
