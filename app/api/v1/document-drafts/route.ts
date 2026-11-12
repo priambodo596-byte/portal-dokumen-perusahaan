@@ -55,6 +55,13 @@ export const POST = route(async (request, ctx) => {
     fields[key] = String(value).trim().slice(0, 2000)
   }
 
+  const missingRequired = document.fields
+    .filter((field) => field.required === true && !repeatKeys.has(field.key) && !AUTO_FIELDS.has(field.key) && field.source_binding.status !== 'controlled_system_value')
+    .filter((field) => !fields[field.key]?.trim())
+  if (missingRequired.length) {
+    throw new ApiError(422, 'Lengkapi field wajib sebelum membuat draf.', Object.fromEntries(missingRequired.map((field) => [field.key, 'Field ini wajib diisi.'])))
+  }
+
   const created = await createDocument(ctx, {
     type: 'other',
     title: `${document.code} — ${input.title}`.slice(0, 200),

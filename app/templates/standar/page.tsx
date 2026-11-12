@@ -14,7 +14,7 @@ export default async function StandardTemplatesPage() {
       <div>
         <div className="eyebrow"><span className="eyebrow-dot" /> Administrasi / Standar PT.Palos</div>
         <h1>Pustaka Dokumen Standar</h1>
-        <p>Referensi metadata {documents.length} dokumen yang dapat diakses akun Anda, skema isian untuk agent, klasifikasi akses, dan jalur persetujuan. File DOCX master belum dihosting oleh portal.</p>
+        <p>Kelola standar {documents.length} dokumen yang dapat diakses akun Anda: skema isian, klasifikasi, jalur persetujuan, dan master DOCX privat.</p>
       </div>
     </section>
     <StandardTemplateCatalog documents={documents} canManage={can(role, 'manage-templates')} initialUploadedCodes={uploadedCodes} />

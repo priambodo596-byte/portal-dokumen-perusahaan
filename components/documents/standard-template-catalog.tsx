@@ -21,15 +21,17 @@ const bindingLabel = (value: string) => ({
 export default function StandardTemplateCatalog({ documents, canManage = false, initialUploadedCodes = {} }: { documents: StandardDocument[]; canManage?: boolean; initialUploadedCodes?: Record<string, { sha256: string; size: number; updatedAt: Date | string }> }) {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('')
+  const [sourceStatus, setSourceStatus] = useState('')
   const [uploadedCodes, setUploadedCodes] = useState(initialUploadedCodes)
   const [uploadState, setUploadState] = useState('')
   const [uploading, setUploading] = useState(false)
   const categories = useMemo(() => [...new Set(documents.map((document) => document.category))], [documents])
   const visible = useMemo(() => documents.filter((document) => {
     const matchesCategory = !category || document.category === category
+    const matchesSource = !sourceStatus || (sourceStatus === 'ready' ? !!uploadedCodes[document.code] : !uploadedCodes[document.code])
     const text = `${document.code} ${document.name} ${document.category} ${document.agent_role}`.toLocaleLowerCase('id-ID')
-    return matchesCategory && text.includes(query.trim().toLocaleLowerCase('id-ID'))
-  }), [documents, category, query])
+    return matchesCategory && matchesSource && text.includes(query.trim().toLocaleLowerCase('id-ID'))
+  }), [documents, category, query, sourceStatus, uploadedCodes])
   const totalFields = documents.reduce((sum, document) => sum + document.fields.length, 0)
   const needsMapping = documents.reduce((sum, document) => sum + document.fields.filter(sourceRequiresConfirmation).length, 0)
 
@@ -68,7 +70,7 @@ export default function StandardTemplateCatalog({ documents, canManage = false, 
 
     <section className="panel standard-catalog-panel">
       <div className="panel-heading standard-catalog-heading">
-        <div><h2>Daftar standar PT.Palos</h2><p>Gunakan kode dokumen untuk memilih format dan mengambil skema isian melalui API internal.</p></div>
+        <div><h2>Daftar standar PT.Palos</h2><p>Pilih standar untuk melihat kebutuhan data, alur persetujuan, dan kesiapan master DOCX.</p></div>
         <div className="standard-heading-actions">
           <span className="standard-policy"><ShieldCheck size={15} /> Persetujuan manusia wajib</span>
           {canManage && <label className={`secondary-button standard-upload-button ${uploading ? 'disabled' : ''}`}><FileUp size={14} />{uploading ? 'Mengunggah…' : 'Unggah master DOCX'}<input type="file" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple disabled={uploading} hidden onChange={(event) => { void uploadMasters(event.currentTarget.files); event.currentTarget.value = '' }} /></label>}
@@ -80,6 +82,11 @@ export default function StandardTemplateCatalog({ documents, canManage = false, 
         <select className="field-select" aria-label="Filter kategori" value={category} onChange={(event) => setCategory(event.target.value)}>
           <option value="">Semua kategori ({documents.length})</option>
           {categories.map((item) => <option key={item} value={item}>{titleCase(item)}</option>)}
+        </select>
+        <select className="field-select" aria-label="Filter kesiapan master" value={sourceStatus} onChange={(event) => setSourceStatus(event.target.value)}>
+          <option value="">Semua status master</option>
+          <option value="ready">Master siap</option>
+          <option value="missing">Master perlu diunggah</option>
         </select>
         <span className="template-count">{visible.length} dokumen</span>
       </div>
@@ -122,7 +129,7 @@ export default function StandardTemplateCatalog({ documents, canManage = false, 
             </div>
           </details>
         })}
-        {visible.length === 0 && <div className="state-box"><strong>Tidak ada dokumen yang cocok</strong><span>Ubah pencarian atau pilih kategori lain.</span></div>}
+        {visible.length === 0 && <div className="state-box"><strong>Tidak ada dokumen yang cocok</strong><span>Ubah pencarian atau filter yang dipilih.</span><button type="button" className="secondary-button" onClick={() => { setQuery(''); setCategory(''); setSourceStatus('') }}>Hapus filter</button></div>}
       </div>
     </section>
   </div>

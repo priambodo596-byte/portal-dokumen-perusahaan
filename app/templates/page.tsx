@@ -13,7 +13,7 @@ export default async function TemplatesPage() {
   const standardDocuments = standardRegistry.documents.filter((document) => document.classification === 'internal' || role === 'admin' || role === 'manager')
   const uploadedCodes = await listUploadedStandardTemplateCodes()
   return <Dashboard initialRoute="templates">
-    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Administrasi / Standar PT.Palos</div><h1>Template & Standar Dokumen</h1><p>Katalog metadata standar perusahaan berisi kode, field, peran agent, klasifikasi, dan persetujuan. File DOCX master belum dihosting oleh portal; template produksi yang disimpan di portal dikelola di bagian bawah.</p></div></section>
+    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Administrasi / Standar PT.Palos</div><h1>Template & Standar Dokumen</h1><p>Temukan standar, periksa kesiapan master DOCX privat, lalu buat draf melalui alur persetujuan. Pengelolaan template produksi tersedia di bagian bawah.</p></div></section>
     <StandardTemplateCatalog documents={standardDocuments} canManage={can(role, 'manage-templates')} initialUploadedCodes={uploadedCodes} />
     <TemplateManager initialTemplates={templates.map((t) => ({ ...t, description: t.description ?? null }))} canManage={can(role, 'manage-templates')} userName={userName ?? 'Pengguna'} />
   </Dashboard>
