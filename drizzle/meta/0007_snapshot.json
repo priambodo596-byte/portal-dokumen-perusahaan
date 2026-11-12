@@ -339,9 +339,9 @@
           "primaryKey": false,
           "notNull": false
         },
-        "content": {
-          "name": "content",
-          "type": "bytea",
+        "storagePath": {
+          "name": "storagePath",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },

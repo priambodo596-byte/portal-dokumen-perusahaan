@@ -4,7 +4,7 @@ CREATE TABLE "standard_template_files" (
 	"mimeType" text DEFAULT 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' NOT NULL,
 	"size" integer NOT NULL,
 	"sha256" text NOT NULL,
-	"content" "bytea" NOT NULL,
+	"storagePath" text NOT NULL,
 	"uploadedBy" text NOT NULL,
 	"uploadedAt" timestamp DEFAULT now() NOT NULL,
 	"updatedAt" timestamp DEFAULT now() NOT NULL

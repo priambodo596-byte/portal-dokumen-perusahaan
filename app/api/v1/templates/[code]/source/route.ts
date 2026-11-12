@@ -11,7 +11,7 @@ export const runtime = 'nodejs'
 export const maxDuration = 30
 const MAX_FILE_SIZE = 20 * 1024 * 1024
 
-/** Simpan master DOCX standar di database privat, bukan di direktori publik atau GitHub. */
+/** Simpan master DOCX standar di bucket privat Supabase Storage, bukan di direktori publik atau GitHub. */
 export const POST = route(async (request, ctx, params: { code: string }) => {
   if (!can(ctx.role, 'manage-templates')) throw new ApiError(403, 'Hanya admin yang dapat mengunggah master template.')
   const document = findStandardDocument(params.code)

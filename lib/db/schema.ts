@@ -262,14 +262,14 @@ export const templateVersions = pgTable('template_versions', {
   uniqueIndex('template_versions_tpl_ver_uq').on(t.templateId, t.version),
 ])
 
-// Master DOCX standar disimpan privat di DB; berkas perusahaan tidak disajikan dari direktori publik.
+// Metadata master DOCX standar; isi berkas berada di bucket privat Supabase Storage.
 export const standardTemplateFiles = pgTable('standard_template_files', {
   code: text('code').primaryKey(),
   fileName: text('fileName').notNull(),
   mimeType: text('mimeType').notNull().default('application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
   size: integer('size').notNull(),
   sha256: text('sha256').notNull(),
-  content: bytea('content').notNull(),
+  storagePath: text('storagePath').notNull(),
   uploadedBy: text('uploadedBy').notNull(),
   uploadedAt: timestamp('uploadedAt').notNull().defaultNow(),
   updatedAt: timestamp('updatedAt').notNull().defaultNow(),
