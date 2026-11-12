@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-:root { color-scheme: light; --background: #f5f7fb; --foreground: #172238; --muted: #70809b; --line: #e5eaf2; --navy: #1c2b48; --blue: #4169e1; --blue-soft: #edf2ff; --amber: #e7a938; --green: #32a777; --purple: #8d6dd8; }
+:root { color-scheme: light; --background: #f5f5f5; --foreground: #202124; --muted: #6f747b; --line: #e5e5e5; --navy: #252525; --blue: #b51f26; --blue-soft: #fff0f1; --amber: #d79a24; --green: #32815c; --purple: #7559a6; }
 * { box-sizing: border-box; border-color: var(--line); }
 body { margin: 0; background: var(--background); color: var(--foreground); font-family: Arial, Helvetica, sans-serif; }
 button, input, select { font: inherit; }
@@ -660,6 +660,36 @@ tbody tr:hover { background: #fafcff; }
 .guide-note svg { flex: none; margin-top: 12px; }
 .guide-note p { margin: 9px 0; }
 @media (max-width: 760px) { .guide-grid { grid-template-columns: 1fr; }.guide-import { align-items: flex-start; flex-direction: column; }.dashboard-recent-status { display: none; } }
+
+/* Identitas visual resmi PT.Palos: merah, hitam, dan putih. */
+.sidebar { background: #fff; border-right-color: #e3e3e3; }
+.brand-row { min-height: 73px; padding: 0 7px 15px; gap: 10px; }
+.brand-logo { display: block; width: 58px; height: 58px; object-fit: contain; flex: 0 0 auto; }
+.brand-copy strong { color: #a51e23; font-size: 15px; letter-spacing: .04em; }
+.brand-copy span { color: #6c6c6c; font-size: 9px; letter-spacing: .01em; }
+.company-switcher { border: 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; border-radius: 0; margin: 0 0 18px; padding: 13px 8px; }
+.company-mark { display: grid; place-items: center; width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; background: #a51e23; color: white; font-size: 13px; font-weight: 800; }
+.company-switcher strong { color: #292929; font-size: 11px; }
+.company-switcher span { max-width: 150px; color: #777; font-size: 9px; line-height: 1.35; white-space: normal; }
+.nav-label { color: #858585; font-size: 9px; letter-spacing: .1em; }
+.nav-item { min-height: 38px; border-radius: 7px; color: #555; font-size: 11px; }
+.nav-item:hover:not(.active) { background: #f7f7f7; color: #222; }
+.nav-item.active { background: #fff1f1; color: #9f1c22; box-shadow: inset 3px 0 #b51f26; }
+.nav-item b { background: #b51f26; color: white; }
+.topbar { border-top: 3px solid #a51e23; }
+.eyebrow-dot { background: #b51f26; }
+.primary-button { background: #a51e23; box-shadow: 0 4px 12px #a51e2320; }
+.primary-button:hover { background: #87181d; }
+.stat-accent { border-top-color: #a51e23; }
+.stat-icon, .option-icon { background: #fff0f1; color: #a51e23; }
+.doc-icon { border-color: #f0d5d6; background: #fff7f7; color: #a51e23; }
+.dashboard-recent-row:hover .dashboard-recent-copy strong,
+.dashboard-shortcuts a:hover { color: #a51e23; }
+.help-card:hover { border-color: #e3b9bb; background: #fff7f7; }
+.guide-step { color: #a51e23; }
+.guide-icon { background: #fff0f1; color: #a51e23; }
+.nav-item:focus-visible, .primary-button:focus-visible, .secondary-button:focus-visible, .help-card:focus-visible { outline: 2px solid #b51f26; outline-offset: 2px; }
+@media (max-width: 760px) { .brand-row { min-height: 68px; } }
 @media (max-width: 760px) {
   .sidebar { height: 100vh; height: 100dvh; min-height: 0; }
 }

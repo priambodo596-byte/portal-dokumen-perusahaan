@@ -10,14 +10,13 @@ import type { Role } from '@/lib/permissions-client'
 
 type NavItem = { label: string; href: string; icon: typeof LayoutDashboard; createOnly?: boolean; adminOnly?: boolean }
 const navGroups: { label: string; items: NavItem[] }[] = [
-  { label: 'RUANG KERJA', items: [
+  { label: 'MENU UTAMA', items: [
     { label: 'Dashboard', href: '/', icon: LayoutDashboard },
-    { label: 'Proyek', href: '/projects', icon: FolderKanban },
+  ] },
+  { label: 'DOKUMEN', items: [
     { label: 'Semua Dokumen', href: '/documents', icon: FileText },
     { label: 'Buat Dokumen', href: '/documents/new', icon: FilePlus2, createOnly: true },
     { label: 'Impor Dokumen', href: '/documents/import', icon: Upload, createOnly: true },
-  ] },
-  { label: 'JENIS DOKUMEN', items: [
     { label: 'RAB & BoQ', href: '/rab', icon: Calculator },
     { label: 'Surat Penawaran', href: '/quotations', icon: FileText },
     { label: 'SPK PJ', href: '/spk-pj', icon: BriefcaseBusiness },
@@ -25,14 +24,17 @@ const navGroups: { label: string; items: NavItem[] }[] = [
     { label: 'Invoice & Pembayaran', href: '/invoices', icon: FileText },
     { label: 'Berita Acara & BAST', href: '/minutes', icon: FileCheck2 },
   ] },
-  { label: 'TINJAUAN', items: [
+  { label: 'OPERASIONAL', items: [
+    { label: 'Proyek', href: '/projects', icon: FolderKanban },
+    { label: 'Master Data Klien', href: '/master-data', icon: Users },
+    { label: 'Data Vendor', href: '/vendors', icon: Truck },
+  ] },
+  { label: 'PENGENDALIAN', items: [
     { label: 'Persetujuan', href: '/approvals', icon: ShieldCheck },
     { label: 'Arsip Dokumen', href: '/archives', icon: Archive },
     { label: 'Laporan', href: '/reports', icon: Activity },
   ] },
-  { label: 'DATA & ADMINISTRASI', items: [
-    { label: 'Master Data Klien', href: '/master-data', icon: Users },
-    { label: 'Data Vendor', href: '/vendors', icon: Truck },
+  { label: 'PENGATURAN PERUSAHAAN', items: [
     { label: 'Template Dokumen', href: '/templates', icon: SlidersHorizontal },
     { label: 'Standar PT.Palos', href: '/templates/standar', icon: ShieldCheck },
     { label: 'Variabel & Placeholder', href: '/templates/variables', icon: FileText },
@@ -81,6 +83,9 @@ export default function Dashboard({ initialRoute = '', children }: { initialRout
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [userName, setUserName] = useState('Pengguna')
   const [role, setRole] = useState<Role>('staff')
+  const [companyName, setCompanyName] = useState('PT.Palos')
+  const [companyTagline, setCompanyTagline] = useState('Palembang Security Operating System')
+  const [pendingCount, setPendingCount] = useState(0)
   const [searchOpen, setSearchOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [searchRows, setSearchRows] = useState<SearchResult[]>([])
@@ -89,11 +94,14 @@ export default function Dashboard({ initialRoute = '', children }: { initialRout
   const [homeError, setHomeError] = useState('')
 
   useEffect(() => {
-    fetch('/api/me', { cache: 'no-store' }).then(async (response) => {
+    fetch('/api/sidebar', { cache: 'no-store' }).then(async (response) => {
       if (!response.ok) return
-      const data = await response.json() as { userName: string; role: Role }
+      const data = await response.json() as { userName: string; role: Role; companyName: string; companyTagline: string; pendingCount: number }
       setUserName(data.userName || 'Pengguna')
       setRole(data.role)
+      setCompanyName(data.companyName || 'PT.Palos')
+      setCompanyTagline(data.companyTagline || 'Palembang Security Operating System')
+      setPendingCount(data.pendingCount || 0)
     }).catch(() => {})
   }, [])
 
@@ -133,12 +141,12 @@ export default function Dashboard({ initialRoute = '', children }: { initialRout
 
   return <div className="portal-shell">
     <aside className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
-      <div className="brand-row"><div className="brand-mark">P</div><div className="brand-copy"><strong>PALOS</strong><span>Portal Dokumen</span></div><button className="icon-button sidebar-close" onClick={() => setSidebarOpen(false)} aria-label="Tutup menu"><X /></button></div>
-      <div className="company-switcher"><div className="company-logo">P</div><div><strong>PT Palos Nusantara</strong><span>Perusahaan aktif</span></div></div>
+      <div className="brand-row"><img className="brand-logo" src="/palos-logo.png" alt="Logo PT.Palos" /><div className="brand-copy"><strong>{companyName}</strong><span>Portal Dokumen Perusahaan</span></div><button className="icon-button sidebar-close" onClick={() => setSidebarOpen(false)} aria-label="Tutup menu"><X /></button></div>
+      <div className="company-switcher"><span className="company-mark" aria-hidden="true">P</span><div><strong>{companyName}</strong><span>{companyTagline}</span></div></div>
       <nav className="sidebar-nav" aria-label="Navigasi utama">{nav.map((group) => <div className="nav-group" key={group.label}><p className="nav-label">{group.label}</p>{group.items.map((item) => {
         const Icon = item.icon
         const active = item.href === '/' ? isHome : item.href === '/documents' ? activePath === '/documents' || activePath.startsWith('/documents/') && !['/documents/new', '/documents/import', '/documents/standard/new'].includes(activePath) : item.href === '/templates' ? activePath === '/templates' : activePath === item.href || activePath.startsWith(`${item.href}/`)
-        return <Link key={item.href} href={item.href} className={`nav-item ${active ? 'active' : ''}`} aria-current={active ? 'page' : undefined} onClick={() => setSidebarOpen(false)}><Icon /><span>{item.label}</span></Link>
+        return <Link key={item.href} href={item.href} className={`nav-item ${active ? 'active' : ''}`} aria-current={active ? 'page' : undefined} onClick={() => setSidebarOpen(false)}><Icon /><span>{item.label}</span>{item.href === '/approvals' && pendingCount > 0 && <b aria-label={`${pendingCount} dokumen menunggu persetujuan`}>{pendingCount > 99 ? '99+' : pendingCount}</b>}</Link>
       })}</div>)}</nav>
       <div className="sidebar-bottom">
         <Link href="/panduan" className="help-card"><span className="help-icon">?</span><span><strong>Panduan penggunaan</strong><span>Alur kerja dan bantuan portal</span></span><ChevronRight /></Link>
@@ -146,9 +154,9 @@ export default function Dashboard({ initialRoute = '', children }: { initialRout
       </div>
     </aside>
 
-    <main className="main-content"><header className="topbar"><button className="icon-button mobile-menu" onClick={() => setSidebarOpen(true)} aria-label="Buka menu"><Menu /></button><div className="breadcrumbs"><span>Ruang kerja</span><ChevronRight /><strong>{activeTitle}</strong></div><div className="topbar-actions"><button className="icon-button" aria-label="Cari dokumen" title="Cari dokumen" onClick={() => setSearchOpen(true)}><Search /></button><Link className="icon-button" href="/approvals" aria-label="Buka persetujuan" title="Persetujuan"><Bell /></Link><div className="topbar-divider" /><div className="topbar-user"><div className="avatar avatar-coral">{avatar}</div><span>{userName}</span></div></div></header>
+    <main className="main-content"><header className="topbar"><button className="icon-button mobile-menu" onClick={() => setSidebarOpen(true)} aria-label="Buka menu"><Menu /></button><div className="breadcrumbs"><span>{companyName}</span><ChevronRight /><strong>{activeTitle}</strong></div><div className="topbar-actions"><button className="icon-button" aria-label="Cari dokumen" title="Cari dokumen" onClick={() => setSearchOpen(true)}><Search /></button><Link className="icon-button notification" href="/approvals" aria-label={pendingCount ? `${pendingCount} dokumen menunggu persetujuan` : 'Buka persetujuan'} title="Persetujuan"><Bell />{pendingCount > 0 && <i />}</Link><div className="topbar-divider" /><div className="topbar-user"><div className="avatar avatar-coral">{avatar}</div><span>{userName}</span></div></div></header>
       <div className="page-wrap">{isHome ? <>
-        <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Ruang kerja / Dashboard</div><h1>Selamat datang, {userName}</h1><p>Ringkasan dokumen dan aktivitas perusahaan dari data portal.</p></div>{role !== 'viewer' && <Link href="/documents/new" className="primary-button"><Plus /> Buat dokumen</Link>}</section>
+        <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> {companyName} / Dashboard</div><h1>Selamat datang, {userName}</h1><p>Ringkasan dokumen dan aktivitas perusahaan dari data portal.</p></div>{role !== 'viewer' && <Link href="/documents/new" className="primary-button"><Plus /> Buat dokumen</Link>}</section>
         {homeError && <div className="banner-error" role="alert">{homeError}</div>}
         <section className="stat-grid"><div className="stat-card stat-accent"><div className="stat-top"><span>Total dokumen</span><FileText /></div><strong>{homeData?.documentCount ?? '—'}</strong><div className="stat-foot">Dokumen aktif di portal</div></div><div className="stat-card"><div className="stat-top"><span>Menunggu persetujuan</span><ShieldCheck /></div><strong>{homeData?.pendingCount ?? '—'}</strong><div className="stat-foot"><Link href="/approvals">Buka antrean persetujuan</Link></div></div><div className="stat-card"><div className="stat-top"><span>Dokumen diterbitkan</span><FileCheck2 /></div><strong>{homeData?.publishedCount ?? '—'}</strong><div className="stat-foot"><Link href="/archives">Lihat arsip</Link></div></div><div className="stat-card"><div className="stat-top"><span>Nilai dokumen</span><BriefcaseBusiness /></div><strong style={{ fontSize: 20 }}>{homeData ? formatRupiah(Number(homeData.totalValue)) : '—'}</strong><div className="stat-foot">Akumulasi seluruh dokumen aktif</div></div></section>
         <section className="content-grid"><div className="panel"><div className="panel-heading"><div><h2>Dokumen terbaru</h2><p>Perubahan terakhir yang tercatat</p></div><Link href="/documents">Semua dokumen <ChevronRight /></Link></div>{!homeData ? <p className="dashboard-loading">Memuat dokumen…</p> : homeData.latest.length === 0 ? <p className="dashboard-loading">Belum ada dokumen. Buat dokumen pertama untuk memulai.</p> : <div className="dashboard-recent-list">{homeData.latest.map((doc) => <Link href={`/documents/${doc.id}`} className="dashboard-recent-row" key={doc.id}><span className="doc-icon"><FileText /></span><span className="dashboard-recent-copy"><strong>{doc.title}</strong><small>{doc.documentNumber} · {typeLabel(doc.type)}</small></span><span className="dashboard-recent-status">{statusMeta(doc.status).label}</span></Link>)}</div>}</div><div className="panel"><div className="panel-heading"><div><h2>Alur kerja</h2><p>Kelola dokumen yang memerlukan tindakan</p></div><ShieldCheck /></div><div className="approval-summary"><strong>{homeData?.pendingCount ?? '—'}</strong><span>dokumen perlu ditinjau</span><Link href="/approvals">Buka persetujuan <ChevronRight /></Link></div><div className="dashboard-shortcuts"><Link href="/documents/import"><Upload size={15} /> Impor dokumen</Link><Link href="/templates/standar"><SlidersHorizontal size={15} /> Pustaka standar</Link></div></div></section>
