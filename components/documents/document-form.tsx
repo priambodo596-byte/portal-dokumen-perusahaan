@@ -9,9 +9,10 @@ import { DOCUMENT_TYPES, formatRupiah } from '@/lib/documents/constants'
 import { api, Toast } from './shared'
 
 type Option = { id: string; name: string; clientId?: string | null }
+type TemplateOption = { id: string; name: string; type: string; isDefault: boolean; mode: string }
 type ItemState = { description: string; unit: string; quantity: string; unitPrice: string }
 export type FormInitial = {
-  id: string; type: string; title: string; documentNumber: string; documentDate: string; clientId: string | null; projectId: string | null; notes: string | null
+  id: string; type: string; title: string; documentNumber: string; documentDate: string; clientId: string | null; projectId: string | null; templateId?: string | null; notes: string | null
   discount: number; taxRate: string; version: number; items: { description: string; unit: string | null; quantity: string; unitPrice: number }[]
 }
 
@@ -26,10 +27,15 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
   const [discount, setDiscount] = useState(String(initial?.discount ?? 0)); const [taxRate, setTaxRate] = useState(String(initial ? Number(initial.taxRate) : 11))
   const [items, setItems] = useState<ItemState[]>(initial?.items.length ? initial.items.map((i) => ({ description: i.description, unit: i.unit ?? '', quantity: String(Number(i.quantity)), unitPrice: String(i.unitPrice) })) : [emptyItem()])
   const [clients, setClients] = useState<Option[]>([]); const [projects, setProjects] = useState<Option[]>([])
+  const [templates, setTemplates] = useState<TemplateOption[]>([]); const [templateId, setTemplateId] = useState(initial?.templateId ?? '')
   const [errors, setErrors] = useState<Record<string, string>>({}); const [formError, setFormError] = useState<string | null>(null); const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<string | null>(null); const [newClient, setNewClient] = useState<string | null>(null); const [newProject, setNewProject] = useState<string | null>(null)
 
   useEffect(() => { api<Option[]>('/api/clients').then(setClients).catch(() => setFormError('Gagal memuat daftar klien.')); api<Option[]>('/api/projects').then(setProjects).catch(() => setFormError('Gagal memuat daftar proyek.')) }, [])
+  useEffect(() => {
+    if (templateId.startsWith('standard:')) return
+    api<TemplateOption[]>(`/api/templates/options?type=${encodeURIComponent(type)}`).then(setTemplates).catch(() => setTemplates([]))
+  }, [type, templateId])
   const visibleProjects = projects.filter((p) => !clientId || !p.clientId || p.clientId === clientId)
 
   // Pratinjau saja; angka resmi dihitung ulang di server saat disimpan.
@@ -61,7 +67,7 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
     if (Object.keys(local).length) { setErrors(local); setFormError('Periksa kembali isian yang ditandai.'); return }
 
     const payload = {
-      type, title, documentDate: date, ...(number.trim() ? { documentNumber: number.trim() } : {}), clientId: clientId || null, projectId: projectId || null, notes: notes || null,
+      type, title, documentDate: date, ...(number.trim() ? { documentNumber: number.trim() } : {}), clientId: clientId || null, projectId: projectId || null, templateId: templateId || null, notes: notes || null,
       discount: Math.trunc(Number(discount) || 0), taxRate: Number(taxRate) || 0,
       items: items.map((it, i) => ({ description: it.description.trim(), unit: it.unit.trim() || null, quantity: parsed[i].quantity, unitPrice: Math.trunc(parsed[i].unitPrice) })),
     }
@@ -84,7 +90,8 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
     {formError && <div className="banner-error" role="alert">{formError}</div>}
 
     <section className="panel form-section"><h2>Informasi utama</h2><div className="form-grid">
-      <div className="form-field"><label htmlFor="type">Jenis dokumen<span className="req">*</span></label><select id="type" className="field-select" value={type} onChange={(e) => setType(e.target.value)} disabled={editing}>{DOCUMENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
+      <div className="form-field"><label htmlFor="type">Jenis dokumen<span className="req">*</span></label><select id="type" className="field-select" value={type} onChange={(e) => { const next = e.target.value; setType(next); if (!templates.some((template) => template.id === templateId && template.type === next)) setTemplateId('') }} disabled={editing}>{DOCUMENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
+      {!templateId.startsWith('standard:') && <div className="form-field"><label htmlFor="templateId">Template dokumen</label><select id="templateId" className="field-select" value={templateId} onChange={(e) => setTemplateId(e.target.value)}><option value="">Gunakan template default jenis ini</option>{templates.map((template) => <option value={template.id} key={template.id}>{template.name}{template.isDefault ? ' · Default' : ''}</option>)}</select><small className="hint">{templateId ? 'Dokumen ini akan memakai template yang dipilih.' : 'Template default mengikuti jenis dokumen dan dapat diatur di menu Template Dokumen.'}</small></div>}
       <div className="form-field"><label htmlFor="number">Nomor dokumen{editing && <span className="req">*</span>}</label><input id="number" className={cls('documentNumber', 'field-input')} value={number} onChange={(e) => setNumber(e.target.value)} placeholder={editing ? '' : 'Otomatis, mis. PENAWARAN-2026-001'} />{err('documentNumber')}</div>
       <div className="form-field span-2"><label htmlFor="title">Judul<span className="req">*</span></label><input id="title" className={cls('title', 'field-input')} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} />{err('title')}</div>
       <div className="form-field"><label htmlFor="date">Tanggal dokumen<span className="req">*</span></label><input id="date" type="date" className={cls('documentDate', 'field-input')} value={date} onChange={(e) => setDate(e.target.value)} />{err('documentDate')}</div>

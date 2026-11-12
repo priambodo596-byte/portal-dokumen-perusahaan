@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { CheckCircle2, Copy, FileDown, Pencil, RotateCcw, Send, ShieldCheck, Trash2, Upload, XCircle } from 'lucide-react'
+import { CheckCircle2, Copy, Eye, FileDown, Pencil, RotateCcw, Send, ShieldCheck, Trash2, Upload, XCircle } from 'lucide-react'
 import { DELETABLE_STATUSES, EDITABLE_STATUSES, transitionsFor, type TransitionAction } from '@/lib/documents/constants'
 import { can, type Role } from '@/lib/permissions-client'
 import { api, ConfirmDialog, downloadFile, Toast } from './shared'
@@ -55,6 +55,7 @@ export default function DocumentActions({ id, number, title, status, ownerId, us
       </button>
     ))}
     {EDITABLE_STATUSES.includes(status) && can(role, 'edit', own) && <Link href={`/documents/${id}/edit`} className="secondary-button"><Pencil /> Edit</Link>}
+    <a className="secondary-button" href={`/api/documents/${id}/preview/browser`} target="_blank" rel="noreferrer" title="Buka pratinjau dokumen di tab browser baru"><Eye /> Pratinjau</a>
     <button className="secondary-button" onClick={() => exportAs('docx')} disabled={busy}><FileDown /> Export Word</button>
     <button className="secondary-button" onClick={() => exportAs('pdf')} disabled={busy}><FileDown /> Export PDF</button>
     {can(role, 'create') && <button className="secondary-button" onClick={duplicate} disabled={busy}><Copy /> Duplikat</button>}

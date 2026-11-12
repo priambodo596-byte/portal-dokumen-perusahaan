@@ -13,7 +13,7 @@ export default async function EditDocumentPage({ params }: { params: Promise<{ i
   const doc = await getDocumentDetail(id, role).catch((e) => { if (e instanceof ApiError && e.status === 404) notFound(); throw e })
   if (!EDITABLE_STATUSES.includes(doc.status) || !can(role, 'edit', { userId, ownerId: doc.createdBy })) redirect(`/documents/${id}`)
   return <Dashboard initialRoute="documents"><DocumentForm initial={{
-    id: doc.id, type: doc.type, title: doc.title, documentNumber: doc.documentNumber, documentDate: doc.documentDate, clientId: doc.clientId, projectId: doc.projectId,
+    id: doc.id, type: doc.type, title: doc.title, documentNumber: doc.documentNumber, documentDate: doc.documentDate, clientId: doc.clientId, projectId: doc.projectId, templateId: doc.templateId,
     notes: doc.notes, discount: doc.discount, taxRate: doc.taxRate, version: doc.version, items: doc.items.map((i) => ({ description: i.description, unit: i.unit, quantity: i.quantity, unitPrice: i.unitPrice })),
   }} /></Dashboard>
 }

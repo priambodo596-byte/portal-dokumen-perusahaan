@@ -21,6 +21,12 @@ export async function listTemplates() {
   return db.select().from(templates).where(isNull(templates.deletedAt)).orderBy(desc(templates.isDefault), desc(templates.updatedAt))
 }
 
+export async function listTemplateOptions(type: string) {
+  return db.select({ id: templates.id, name: templates.name, type: templates.type, isDefault: templates.isDefault, mode: templates.mode })
+    .from(templates).where(and(eq(templates.type, type), isNull(templates.deletedAt)))
+    .orderBy(desc(templates.isDefault), desc(templates.updatedAt))
+}
+
 export async function getTemplate(id: string): Promise<TemplateRow> {
   const [row] = await db.select().from(templates).where(and(eq(templates.id, id), isNull(templates.deletedAt))).limit(1)
   if (!row) throw new ApiError(404, 'Template tidak ditemukan.')
@@ -36,7 +42,10 @@ export async function getDefaultTemplateForType(type: string): Promise<TemplateR
 export async function resolveTemplateForDocument(type: string, templateId: string | null): Promise<TemplateRow | null> {
   if (templateId) {
     const [row] = await db.select().from(templates).where(and(eq(templates.id, templateId), isNull(templates.deletedAt))).limit(1)
-    if (row) return row
+    if (row) {
+      if (row.type !== type) throw new ApiError(422, 'Template tidak sesuai dengan jenis dokumen.')
+      return row
+    }
   }
   return getDefaultTemplateForType(type)
 }
