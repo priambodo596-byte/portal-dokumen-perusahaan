@@ -8,5 +8,5 @@ export default async function NewDocumentPage({ searchParams }: { searchParams: 
   const { role } = await requireSession()
   if (!can(role, 'create')) redirect('/documents')
   const { type } = await searchParams
-  return <Dashboard initialRoute="documents"><DocumentForm defaultType={type} /></Dashboard>
+  return <Dashboard initialRoute="documents/new"><DocumentForm defaultType={type} /></Dashboard>
 }

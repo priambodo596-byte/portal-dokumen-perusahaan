@@ -229,16 +229,20 @@ export async function listProjectsWithStats() {
 }
 
 /** Ringkasan operasional untuk halaman laporan. */
-export async function getReportsSummary() {
+export async function getReportsSummary(role = 'admin') {
+  const internalCodes = standardRegistry.documents.filter((document) => document.classification === 'internal').map((document) => document.code)
+  const standardCode = sql<string | null>`${documents.fields}->>'_standard_code'`
+  const visibility = role === 'admin' || role === 'manager' ? undefined : or(isNull(standardCode), inArray(standardCode, internalCodes))
+  const where = visibility ? and(isNull(documents.deletedAt), visibility) : isNull(documents.deletedAt)
   const [byStatus, byType, totals] = await Promise.all([
     db.select({ status: documents.status, n: sql<number>`count(*)::int`, value: sql<number>`coalesce(sum(${documents.total}), 0)::bigint` })
-      .from(documents).where(isNull(documents.deletedAt)).groupBy(documents.status),
+      .from(documents).where(where).groupBy(documents.status),
     db.select({ type: documents.type, n: sql<number>`count(*)::int`, value: sql<number>`coalesce(sum(${documents.total}), 0)::bigint` })
-      .from(documents).where(isNull(documents.deletedAt)).groupBy(documents.type),
+      .from(documents).where(where).groupBy(documents.type),
     db.select({
       documentCount: sql<number>`count(*)::int`,
       totalValue: sql<number>`coalesce(sum(${documents.total}), 0)::bigint`,
-    }).from(documents).where(isNull(documents.deletedAt)),
+    }).from(documents).where(where),
   ])
   return { byStatus, byType, ...totals[0] }
 }

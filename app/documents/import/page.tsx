@@ -8,5 +8,5 @@ export default async function ImportDocumentPage({ searchParams }: { searchParam
   const { role } = await requireSession()
   if (!can(role, 'create')) redirect('/documents')
   const { type } = await searchParams
-  return <Dashboard initialRoute="documents"><DocumentImport defaultType={type} /></Dashboard>
+  return <Dashboard initialRoute="documents/import"><DocumentImport defaultType={type} /></Dashboard>
 }

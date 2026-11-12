@@ -5,8 +5,8 @@ import { getReportsSummary } from '@/lib/documents/service'
 import { requireSession } from '@/lib/session'
 
 export default async function ReportsPage() {
-  await requireSession()
-  const s = await getReportsSummary()
+  const { role } = await requireSession()
+  const s = await getReportsSummary(role)
   const maxStatus = Math.max(1, ...s.byStatus.map((r) => r.n))
   const maxType = Math.max(1, ...s.byType.map((r) => r.n))
 
