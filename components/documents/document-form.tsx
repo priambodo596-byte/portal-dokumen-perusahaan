@@ -159,9 +159,9 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
 
       </div>
       <aside className="document-preview-panel" aria-label="Pratinjau langsung dokumen">
-        <div className="document-preview-heading"><div><strong>Pratinjau dokumen</strong><small>{draftPreview?.templateName ?? (templates.find((t) => t.id === templateId)?.name || 'Template default')}</small></div><span className={`preview-live-state ${previewLoading ? 'is-loading' : ''}`} aria-live="polite">{previewLoading ? 'Memperbarui…' : 'Live'}</span></div>
+        <div className="document-preview-heading"><div><strong>Pratinjau dokumen</strong><small>{draftPreview?.templateName ?? (draftPreview?.message ? 'Pratinjau dasar · template belum aktif' : templates.find((t) => t.id === templateId)?.name || 'Template default')}</small></div><span className={`preview-live-state ${previewLoading ? 'is-loading' : ''}`} aria-live="polite">{previewLoading ? 'Memperbarui…' : 'Live'}</span></div>
         {previewError ? <div className="document-preview-message" role="alert">{previewError}</div>
-          : draftPreview?.html ? <iframe className="document-preview-frame" title="Pratinjau dokumen yang sedang dibuat" sandbox="" srcDoc={draftPreview.html} />
+          : draftPreview?.html ? <>{draftPreview.message && <div className="document-preview-notice" role="status">{draftPreview.message}</div>}<iframe className="document-preview-frame" title="Pratinjau dokumen yang sedang dibuat" sandbox="" srcDoc={draftPreview.html} /></>
           : <div className="document-preview-message">{previewLoading ? 'Menyiapkan pratinjau dari template…' : draftPreview?.message || 'Pratinjau belum tersedia.'}</div>}
       </aside>
     </div>

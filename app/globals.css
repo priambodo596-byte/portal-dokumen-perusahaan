@@ -47,6 +47,7 @@ button { cursor: pointer; }
 .document-preview-heading > div { display: grid; gap: 3px; min-width: 0; }
 .document-preview-heading strong { color: var(--navy); font-size: 12px; }
 .document-preview-heading small { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.document-preview-notice { padding: 9px 12px; border-bottom: 1px solid #ead9a6; background: #fff9e8; color: #765c20; font-size: 10px; line-height: 1.5; }
 .preview-live-state { flex: none; border-radius: 999px; padding: 4px 8px; background: #eaf7ef; color: #197044; font-size: 9px; font-weight: 800; letter-spacing: .04em; }
 .preview-live-state::before { display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: currentColor; content: ''; vertical-align: 1px; }
 .preview-live-state.is-loading { background: #fff6e5; color: #8b6513; }
