@@ -9,7 +9,7 @@ import { DOCUMENT_TYPES, formatRupiah } from '@/lib/documents/constants'
 import { api, Toast } from './shared'
 
 type Option = { id: string; name: string; clientId?: string | null }
-type TemplateOption = { id: string; name: string; type: string; isDefault: boolean; mode: string }
+type TemplateOption = { id: string; name: string; type: string; isDefault: boolean; mode: string; hasItemDetails: boolean }
 type ItemState = { description: string; unit: string; quantity: string; unitPrice: string }
 type DraftPreview = { html: string; templateName: string | null; message: string | null }
 export type FormInitial = {
@@ -29,16 +29,21 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
   const [items, setItems] = useState<ItemState[]>(initial?.items.length ? initial.items.map((i) => ({ description: i.description, unit: i.unit ?? '', quantity: String(Number(i.quantity)), unitPrice: String(i.unitPrice) })) : [emptyItem()])
   const [clients, setClients] = useState<Option[]>([]); const [projects, setProjects] = useState<Option[]>([])
   const [templates, setTemplates] = useState<TemplateOption[]>([]); const [templateId, setTemplateId] = useState(initial?.templateId ?? '')
+  const [templatesLoaded, setTemplatesLoaded] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({}); const [formError, setFormError] = useState<string | null>(null); const [saving, setSaving] = useState(false)
   const [draftPreview, setDraftPreview] = useState<DraftPreview | null>(null); const [previewLoading, setPreviewLoading] = useState(true); const [previewError, setPreviewError] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null); const [newClient, setNewClient] = useState<string | null>(null); const [newProject, setNewProject] = useState<string | null>(null)
 
   useEffect(() => { api<Option[]>('/api/clients').then(setClients).catch(() => setFormError('Gagal memuat daftar klien.')); api<Option[]>('/api/projects').then(setProjects).catch(() => setFormError('Gagal memuat daftar proyek.')) }, [])
   useEffect(() => {
-    if (templateId.startsWith('standard:')) return
-    api<TemplateOption[]>(`/api/templates/options?type=${encodeURIComponent(type)}`).then(setTemplates).catch(() => setTemplates([]))
-  }, [type, templateId])
+    let active = true
+    setTemplatesLoaded(false)
+    api<TemplateOption[]>(`/api/templates/options?type=${encodeURIComponent(type)}`).then((options) => { if (active) setTemplates(options) }).catch(() => { if (active) setTemplates([]) }).finally(() => { if (active) setTemplatesLoaded(true) })
+    return () => { active = false }
+  }, [type])
   const visibleProjects = projects.filter((p) => !clientId || !p.clientId || p.clientId === clientId)
+  const activeTemplate = templates.find((template) => template.id === templateId) ?? (!templateId ? templates.find((template) => template.isDefault) : undefined)
+  const showItemDetails = templateId.startsWith('standard:') ? false : !templatesLoaded ? true : activeTemplate ? activeTemplate.hasItemDetails : true
 
   // Pratinjau saja; angka resmi dihitung ulang di server saat disimpan.
   const parsed = useMemo(() => items.map((i) => ({ quantity: Number(i.quantity.replace(',', '.')) || 0, unitPrice: Number(i.unitPrice) || 0 })), [items])
@@ -47,8 +52,8 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
     type, templateId: templateId && !templateId.startsWith('standard:') ? templateId : null, documentNumber: number, title, documentDate: date,
     clientId: clientId || null, projectId: projectId || null, notes,
     discount: Math.max(0, Math.trunc(Number(discount) || 0)), taxRate: Math.max(0, Number(taxRate) || 0),
-    items: items.map((item, index) => ({ description: item.description, unit: item.unit || null, quantity: parsed[index].quantity, unitPrice: Math.max(0, Math.trunc(parsed[index].unitPrice)) })),
-  }), [type, templateId, number, title, date, clientId, projectId, notes, discount, taxRate, items, parsed])
+    items: showItemDetails ? items.map((item, index) => ({ description: item.description, unit: item.unit || null, quantity: parsed[index].quantity, unitPrice: Math.max(0, Math.trunc(parsed[index].unitPrice)) })) : [],
+  }), [type, templateId, number, title, date, clientId, projectId, notes, discount, taxRate, items, parsed, showItemDetails])
   const previewKey = JSON.stringify(previewPayload)
 
   useEffect(() => {
@@ -92,13 +97,13 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
     if (title.trim().length < 3) local.title = 'Judul minimal 3 karakter.'
     if (editing && !number.trim()) local.documentNumber = 'Nomor dokumen wajib diisi.'
     if (!date) local.documentDate = 'Tanggal wajib diisi.'
-    items.forEach((it, i) => { if (!it.description.trim()) local[`items.${i}.description`] = 'Uraian wajib diisi.'; if (!(parsed[i].quantity > 0)) local[`items.${i}.quantity`] = 'Harus > 0.' })
+    if (showItemDetails) items.forEach((it, i) => { if (!it.description.trim()) local[`items.${i}.description`] = 'Uraian wajib diisi.'; if (!(parsed[i].quantity > 0)) local[`items.${i}.quantity`] = 'Harus > 0.' })
     if (Object.keys(local).length) { setErrors(local); setFormError('Periksa kembali isian yang ditandai.'); return }
 
     const payload = {
       type, title, documentDate: date, ...(number.trim() ? { documentNumber: number.trim() } : {}), clientId: clientId || null, projectId: projectId || null, templateId: templateId || null, notes: notes || null,
-      discount: Math.trunc(Number(discount) || 0), taxRate: Number(taxRate) || 0,
-      items: items.map((it, i) => ({ description: it.description.trim(), unit: it.unit.trim() || null, quantity: parsed[i].quantity, unitPrice: Math.trunc(parsed[i].unitPrice) })),
+      discount: showItemDetails ? Math.trunc(Number(discount) || 0) : 0, taxRate: showItemDetails ? Number(taxRate) || 0 : 0,
+      items: showItemDetails ? items.map((it, i) => ({ description: it.description.trim(), unit: it.unit.trim() || null, quantity: parsed[i].quantity, unitPrice: Math.trunc(parsed[i].unitPrice) })) : [],
     }
     setSaving(true)
     try {
@@ -138,7 +143,7 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
       <div className="form-field span-2"><label htmlFor="notes">Catatan</label><textarea id="notes" className="field-textarea" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={5000} /></div>
     </div></section>
 
-    <section className="panel form-section"><h2>Rincian item</h2>
+    {showItemDetails && <section className="panel form-section"><h2>Rincian item</h2>
       <div className="table-scroll"><table className="items-table"><thead><tr><th style={{ width: 34 }}>#</th><th>Uraian</th><th style={{ width: 80 }}>Satuan</th><th style={{ width: 100 }}>Kuantitas</th><th style={{ width: 150 }}>Harga satuan (Rp)</th><th className="num" style={{ width: 140 }}>Jumlah</th><th style={{ width: 40 }}><span className="sr-only">Hapus</span></th></tr></thead>
         <tbody>{items.map((it, i) => <tr key={i}><td>{i + 1}</td>
           <td><input className={cls(`items.${i}.description`, 'field-input')} aria-label={`Uraian item ${i + 1}`} value={it.description} onChange={(e) => setItem(i, { description: e.target.value })} />{err(`items.${i}.description`)}</td>
@@ -155,7 +160,7 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
         <div><span>Pajak</span><span>{formatRupiah(totals.taxAmount)}</span></div>
         <div className="grand"><span>Total</span><span>{formatRupiah(totals.total)}</span></div>
         <small style={{ color: 'var(--muted)', fontSize: 10 }}>Perhitungan resmi dilakukan ulang oleh server saat disimpan.</small>
-      </div></section>
+      </div></section>}
 
       </div>
       <aside className="document-preview-panel" aria-label="Pratinjau langsung dokumen">

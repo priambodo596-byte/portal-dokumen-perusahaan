@@ -22,9 +22,13 @@ export async function listTemplates() {
 }
 
 export async function listTemplateOptions(type: string) {
-  return db.select({ id: templates.id, name: templates.name, type: templates.type, isDefault: templates.isDefault, mode: templates.mode })
+  const rows = await db.select({ id: templates.id, name: templates.name, type: templates.type, isDefault: templates.isDefault, mode: templates.mode, bodyHtml: templates.bodyHtml, headerHtml: templates.headerHtml, footerHtml: templates.footerHtml })
     .from(templates).where(and(eq(templates.type, type), isNull(templates.deletedAt)))
     .orderBy(desc(templates.isDefault), desc(templates.updatedAt))
+  return rows.map(({ bodyHtml, headerHtml, footerHtml, ...template }) => ({
+    ...template,
+    hasItemDetails: /\{\{\s*#items\s*\}\}|\bdata-each=["']items["']|\{\{\s*(?:position|description|unit|quantity|unitPrice|amount)\s*\}\}/i.test(`${bodyHtml}\n${headerHtml ?? ''}\n${footerHtml ?? ''}`),
+  }))
 }
 
 export async function getTemplate(id: string): Promise<TemplateRow> {
