@@ -50,7 +50,10 @@ const plainDocument = (data: Awaited<ReturnType<typeof buildTemplateData>>) => {
 
 function pageHtml(content: string, css = '') {
   return `<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; style-src 'unsafe-inline'; font-src data:; base-uri 'none'; form-action 'none'"><style>
-    *{box-sizing:border-box}html,body{margin:0;background:#eef1f5;color:#1b2432;font:11pt Arial,sans-serif}body{padding:20px}.paper{width:210mm;min-height:297mm;margin:0 auto;padding:20mm;background:#fff;box-shadow:0 2px 14px #17203320;overflow-wrap:anywhere}.document-header{margin-bottom:18px}.document-footer{margin-top:24px}.document-body{min-height:180mm}table{border-collapse:collapse;max-width:100%}img{max-width:100%;height:auto}${css}
+    *{box-sizing:border-box}html,body{width:100%;min-width:0;margin:0;background:#eef1f5;color:#1b2432;font:11pt Arial,sans-serif}body{padding:clamp(6px,2vw,20px)}.paper{width:min(210mm,100%);min-width:0;min-height:297mm;margin:0 auto;padding:clamp(16px,5vw,20mm);background:#fff;box-shadow:0 2px 14px #17203320;overflow-wrap:anywhere}.document-header{margin-bottom:18px}.document-footer{margin-top:24px}.document-body{min-height:180mm}table{width:100%;max-width:100%;border-collapse:collapse;table-layout:fixed}th,td{max-width:100%;overflow-wrap:anywhere;word-break:normal}img{max-width:100%;height:auto}${css}
+    .paper{width:min(210mm,100%);min-width:0;max-width:100%;margin-left:auto;margin-right:auto;overflow-wrap:anywhere}table{max-width:100%}img,svg,video{max-width:100%;height:auto}
+    @media(max-width:700px){html,body{font-size:10pt}body{padding:4px}.paper{width:100%;min-height:100vh;padding:14px;box-shadow:none}.document-body{min-height:0}.document-header,.document-footer{margin-top:12px;margin-bottom:12px}.fallback-meta{grid-template-columns:1fr!important}.fallback-items{font-size:8pt}.fallback-items th,.fallback-items td{padding:4px 3px}.fallback-items .money{white-space:normal}.fallback-totals{width:100%}}
+    @media(max-width:380px){.paper{padding:10px}.fallback-items{font-size:7pt}.fallback-title{margin:18px 0}.fallback-title h1{font-size:14pt}}
   </style></head><body><article class="paper">${content}</article></body></html>`
 }
 

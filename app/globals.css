@@ -51,10 +51,11 @@ button { cursor: pointer; }
 .preview-live-state { flex: none; border-radius: 999px; padding: 4px 8px; background: #eaf7ef; color: #197044; font-size: 9px; font-weight: 800; letter-spacing: .04em; }
 .preview-live-state::before { display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: currentColor; content: ''; vertical-align: 1px; }
 .preview-live-state.is-loading { background: #fff6e5; color: #8b6513; }
-.document-preview-frame { display: block; width: 100%; height: min(76vh, 940px); min-height: 650px; border: 0; background: #eef1f5; }
+.document-preview-frame { display: block; width: 100%; height: min(76vh, 940px); min-height: min(650px, 76vh); border: 0; background: #eef1f5; }
 .document-preview-message { display: grid; min-height: 340px; place-items: center; padding: 26px; color: var(--muted); font-size: 12px; line-height: 1.6; text-align: center; }
-@media (max-width: 1120px) { .document-composer-grid { grid-template-columns: 1fr; } .document-preview-panel { position: static; } .document-preview-frame { height: 720px; } }
-@media (max-width: 760px) { .document-preview-frame { min-height: 550px; height: 68vh; } }
+@media (max-width: 1120px) { .document-composer-grid { grid-template-columns: minmax(0, 1fr); } .document-composer-fields, .document-preview-panel { width: 100%; min-width: 0; } .document-preview-panel { position: static; } .document-preview-frame { height: min(76vh, 820px); min-height: min(600px, 76vh); } }
+@media (max-width: 760px) { .document-composer-grid { gap: 12px; } .document-preview-heading { padding: 11px 12px; } .document-preview-frame { height: 72dvh; min-height: 360px; max-height: 700px; } }
+@media (max-width: 430px) { .document-preview-frame { height: 68dvh; min-height: 340px; } .document-preview-notice { font-size: 9px; } }
 .primary-button:disabled, .secondary-button:disabled { opacity: .55; cursor: not-allowed; }
 .danger-button { border: 0; background: #c64e58; color: #fff; border-radius: 7px; font-size: 11px; font-weight: 700; padding: 10px 14px; }
 .danger-button:disabled { opacity: .6; cursor: wait; }
