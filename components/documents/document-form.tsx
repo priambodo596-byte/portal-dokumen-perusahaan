@@ -11,6 +11,7 @@ import { api, Toast } from './shared'
 type Option = { id: string; name: string; clientId?: string | null }
 type TemplateOption = { id: string; name: string; type: string; isDefault: boolean; mode: string }
 type ItemState = { description: string; unit: string; quantity: string; unitPrice: string }
+type DraftPreview = { html: string; templateName: string | null; message: string | null }
 export type FormInitial = {
   id: string; type: string; title: string; documentNumber: string; documentDate: string; clientId: string | null; projectId: string | null; templateId?: string | null; notes: string | null
   discount: number; taxRate: string; version: number; items: { description: string; unit: string | null; quantity: string; unitPrice: number }[]
@@ -29,6 +30,7 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
   const [clients, setClients] = useState<Option[]>([]); const [projects, setProjects] = useState<Option[]>([])
   const [templates, setTemplates] = useState<TemplateOption[]>([]); const [templateId, setTemplateId] = useState(initial?.templateId ?? '')
   const [errors, setErrors] = useState<Record<string, string>>({}); const [formError, setFormError] = useState<string | null>(null); const [saving, setSaving] = useState(false)
+  const [draftPreview, setDraftPreview] = useState<DraftPreview | null>(null); const [previewLoading, setPreviewLoading] = useState(true); const [previewError, setPreviewError] = useState<string | null>(null)
   const [toast, setToast] = useState<string | null>(null); const [newClient, setNewClient] = useState<string | null>(null); const [newProject, setNewProject] = useState<string | null>(null)
 
   useEffect(() => { api<Option[]>('/api/clients').then(setClients).catch(() => setFormError('Gagal memuat daftar klien.')); api<Option[]>('/api/projects').then(setProjects).catch(() => setFormError('Gagal memuat daftar proyek.')) }, [])
@@ -41,6 +43,33 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
   // Pratinjau saja; angka resmi dihitung ulang di server saat disimpan.
   const parsed = useMemo(() => items.map((i) => ({ quantity: Number(i.quantity.replace(',', '.')) || 0, unitPrice: Number(i.unitPrice) || 0 })), [items])
   const totals = useMemo(() => computeTotals(parsed, Math.max(0, Math.trunc(Number(discount) || 0)), Number(taxRate) || 0), [parsed, discount, taxRate])
+  const previewPayload = useMemo(() => ({
+    type, templateId: templateId && !templateId.startsWith('standard:') ? templateId : null, documentNumber: number, title, documentDate: date,
+    clientId: clientId || null, projectId: projectId || null, notes,
+    discount: Math.max(0, Math.trunc(Number(discount) || 0)), taxRate: Math.max(0, Number(taxRate) || 0),
+    items: items.map((item, index) => ({ description: item.description, unit: item.unit || null, quantity: parsed[index].quantity, unitPrice: Math.max(0, Math.trunc(parsed[index].unitPrice)) })),
+  }), [type, templateId, number, title, date, clientId, projectId, notes, discount, taxRate, items, parsed])
+  const previewKey = JSON.stringify(previewPayload)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    setPreviewLoading(true); setPreviewError(null)
+    const timer = window.setTimeout(() => {
+      fetch('/api/documents/draft-preview', { method: 'POST', headers: { 'content-type': 'application/json' }, body: previewKey, signal: controller.signal })
+        .then(async (res) => {
+          const data = await res.json()
+          if (!res.ok) throw new Error(data.error || 'Pratinjau tidak dapat dimuat.')
+          return data as DraftPreview
+        })
+        .then((data) => { setDraftPreview(data); setPreviewLoading(false) })
+        .catch((error: unknown) => {
+          if (controller.signal.aborted) return
+          setPreviewError(error instanceof Error ? error.message : 'Pratinjau tidak dapat dimuat.')
+          setPreviewLoading(false)
+        })
+    }, 300)
+    return () => { window.clearTimeout(timer); controller.abort() }
+  }, [previewKey])
 
   const setItem = (idx: number, patch: Partial<ItemState>) => setItems((arr) => arr.map((it, i) => (i === idx ? { ...it, ...patch } : it)))
   const err = (k: string) => errors[k] ? <div className="field-error" role="alert">{errors[k]}</div> : null
@@ -89,9 +118,11 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
     <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Workspace / Dokumen</div><h1>{editing ? 'Edit Dokumen' : 'Tambah Dokumen'}</h1><p>{editing ? `Mengubah ${initial!.documentNumber}. Perubahan dicatat sebagai versi baru.` : 'Dokumen disimpan sebagai draft. Nomor dibuat otomatis jika dikosongkan.'}</p></div></section>
     {formError && <div className="banner-error" role="alert">{formError}</div>}
 
+    <div className="document-composer-grid">
+      <div className="document-composer-fields">
     <section className="panel form-section"><h2>Informasi utama</h2><div className="form-grid">
-      <div className="form-field"><label htmlFor="type">Jenis dokumen<span className="req">*</span></label><select id="type" className="field-select" value={type} onChange={(e) => { const next = e.target.value; setType(next); if (!templates.some((template) => template.id === templateId && template.type === next)) setTemplateId('') }} disabled={editing}>{DOCUMENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select></div>
-      {!templateId.startsWith('standard:') && <div className="form-field"><label htmlFor="templateId">Template dokumen</label><select id="templateId" className="field-select" value={templateId} onChange={(e) => setTemplateId(e.target.value)}><option value="">Gunakan template default jenis ini</option>{templates.map((template) => <option value={template.id} key={template.id}>{template.name}{template.isDefault ? ' · Default' : ''}</option>)}</select><small className="hint">{templateId ? 'Dokumen ini akan memakai template yang dipilih.' : 'Template default mengikuti jenis dokumen dan dapat diatur di menu Template Dokumen.'}</small></div>}
+      <div className="form-field"><label htmlFor="type">Jenis dokumen<span className="req">*</span></label><select id="type" className="field-select" value={type} onChange={(e) => { const next = e.target.value; setType(next); if (!templates.some((template) => template.id === templateId && template.type === next)) setTemplateId('') }} disabled={editing}>{DOCUMENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}</select><small className="hint">Pilih jenis dokumen yang akan dibuat.</small></div>
+      {!templateId.startsWith('standard:') && <div className="form-field"><label htmlFor="templateId">Format template</label><select id="templateId" className="field-select" value={templateId} onChange={(e) => setTemplateId(e.target.value)}><option value="">Template default untuk jenis ini</option>{templates.map((template) => <option value={template.id} key={template.id}>{template.name}{template.isDefault ? ' · Default' : ''}</option>)}</select><small className="hint">Pratinjau di kanan mengikuti template ini dan berubah saat isian diedit.</small></div>}
       <div className="form-field"><label htmlFor="number">Nomor dokumen{editing && <span className="req">*</span>}</label><input id="number" className={cls('documentNumber', 'field-input')} value={number} onChange={(e) => setNumber(e.target.value)} placeholder={editing ? '' : 'Otomatis, mis. PENAWARAN-2026-001'} />{err('documentNumber')}</div>
       <div className="form-field span-2"><label htmlFor="title">Judul<span className="req">*</span></label><input id="title" className={cls('title', 'field-input')} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} />{err('title')}</div>
       <div className="form-field"><label htmlFor="date">Tanggal dokumen<span className="req">*</span></label><input id="date" type="date" className={cls('documentDate', 'field-input')} value={date} onChange={(e) => setDate(e.target.value)} />{err('documentDate')}</div>
@@ -126,6 +157,14 @@ export default function DocumentForm({ initial, defaultType }: { initial?: FormI
         <small style={{ color: 'var(--muted)', fontSize: 10 }}>Perhitungan resmi dilakukan ulang oleh server saat disimpan.</small>
       </div></section>
 
+      </div>
+      <aside className="document-preview-panel" aria-label="Pratinjau langsung dokumen">
+        <div className="document-preview-heading"><div><strong>Pratinjau dokumen</strong><small>{draftPreview?.templateName ?? (templates.find((t) => t.id === templateId)?.name || 'Template default')}</small></div><span className={`preview-live-state ${previewLoading ? 'is-loading' : ''}`} aria-live="polite">{previewLoading ? 'Memperbarui…' : 'Live'}</span></div>
+        {previewError ? <div className="document-preview-message" role="alert">{previewError}</div>
+          : draftPreview?.html ? <iframe className="document-preview-frame" title="Pratinjau dokumen yang sedang dibuat" sandbox="" srcDoc={draftPreview.html} />
+          : <div className="document-preview-message">{previewLoading ? 'Menyiapkan pratinjau dari template…' : draftPreview?.message || 'Pratinjau belum tersedia.'}</div>}
+      </aside>
+    </div>
     <div className="form-actions"><Link href={editing ? `/documents/${initial!.id}` : '/documents'} className="secondary-button">Batal</Link><button className="primary-button" disabled={saving}>{saving ? 'Menyimpan…' : editing ? 'Simpan Perubahan' : 'Simpan sebagai Draft'}</button></div>
     <Toast message={toast} />
   </form>

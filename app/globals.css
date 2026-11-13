@@ -40,6 +40,20 @@ button { cursor: pointer; }
 .form-section { margin-bottom: 18px; }
 .form-section > h2 { margin: 0 0 14px; color: var(--navy); font-size: 13px; }
 .form-actions { display: flex; justify-content: flex-end; gap: 8px; position: sticky; bottom: 0; background: linear-gradient(to top, var(--background) 70%, transparent); padding: 16px 0 4px; }
+.document-composer-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(340px, .9fr); gap: 18px; align-items: start; }
+.document-composer-fields { min-width: 0; }
+.document-preview-panel { position: sticky; top: 84px; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 8px 28px #1720330c; }
+.document-preview-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 13px 15px; border-bottom: 1px solid var(--line); }
+.document-preview-heading > div { display: grid; gap: 3px; min-width: 0; }
+.document-preview-heading strong { color: var(--navy); font-size: 12px; }
+.document-preview-heading small { overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.preview-live-state { flex: none; border-radius: 999px; padding: 4px 8px; background: #eaf7ef; color: #197044; font-size: 9px; font-weight: 800; letter-spacing: .04em; }
+.preview-live-state::before { display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: currentColor; content: ''; vertical-align: 1px; }
+.preview-live-state.is-loading { background: #fff6e5; color: #8b6513; }
+.document-preview-frame { display: block; width: 100%; height: min(76vh, 940px); min-height: 650px; border: 0; background: #eef1f5; }
+.document-preview-message { display: grid; min-height: 340px; place-items: center; padding: 26px; color: var(--muted); font-size: 12px; line-height: 1.6; text-align: center; }
+@media (max-width: 1120px) { .document-composer-grid { grid-template-columns: 1fr; } .document-preview-panel { position: static; } .document-preview-frame { height: 720px; } }
+@media (max-width: 760px) { .document-preview-frame { min-height: 550px; height: 68vh; } }
 .primary-button:disabled, .secondary-button:disabled { opacity: .55; cursor: not-allowed; }
 .danger-button { border: 0; background: #c64e58; color: #fff; border-radius: 7px; font-size: 11px; font-weight: 700; padding: 10px 14px; }
 .danger-button:disabled { opacity: .6; cursor: wait; }
