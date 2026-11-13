@@ -1,12 +1,12 @@
 export const DOCUMENT_TYPES = [
   { value: 'rab', label: 'RAB & BoQ', prefix: 'RAB' },
-  { value: 'quotation', label: 'Surat Penawaran', prefix: 'PENAWARAN' },
-  { value: 'spk-pj', label: 'SPK PJ', prefix: 'SPK' },
-  { value: 'contract', label: 'Kontrak', prefix: 'KONTRAK' },
-  { value: 'invoice', label: 'Invoice & Pembayaran', prefix: 'INV' },
-  { value: 'minutes', label: 'Berita Acara & BAST', prefix: 'BA' },
-  { value: 'surat-undangan', label: 'Surat Undangan Penawaran', prefix: 'SUP' },
-  { value: 'other', label: 'Lainnya', prefix: 'DOK' },
+  { value: 'quotation', label: 'Penawaran', prefix: 'PENAWARAN' },
+  { value: 'spk-pj', label: 'Surat Perintah Kerja', prefix: 'SPK' },
+  { value: 'contract', label: 'Kontrak & Perjanjian', prefix: 'KONTRAK' },
+  { value: 'invoice', label: 'Invoice & Tagihan', prefix: 'INV' },
+  { value: 'minutes', label: 'Berita Acara & Serah Terima', prefix: 'BA' },
+  { value: 'surat-undangan', label: 'Undangan Penawaran', prefix: 'SUP' },
+  { value: 'other', label: 'Dokumen Lainnya', prefix: 'DOK' },
 ] as const
 
 export type DocumentType = (typeof DOCUMENT_TYPES)[number]['value']

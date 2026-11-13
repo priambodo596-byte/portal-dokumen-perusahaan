@@ -80,7 +80,7 @@ export default function DocumentList({ userId, role }: { userId: string; role: R
   const toggleAll = () => setSelected((s) => { const n = new Set(s); data?.rows.forEach((r) => (allSelected ? n.delete(r.id) : n.add(r.id))); return n })
 
   return <>
-    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Workspace / Dokumen</div><h1>Semua Dokumen</h1><p>Cari, filter, dan kelola dokumen perusahaan.</p></div>
+    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> PT.Palos / Dokumen Perusahaan</div><h1>Dokumen Perusahaan</h1><p>Cari, filter, dan kelola dokumen perusahaan.</p></div>
       {can(role, 'create') && <div className="heading-actions"><Link href="/documents/import" className="secondary-button"><Upload /> Impor</Link><Link href="/documents/new" className="primary-button"><Plus /> Tambah Dokumen</Link></div>}</section>
     <section className="panel documents-panel">
       <div className="table-toolbar" style={{ marginTop: 0 }}>

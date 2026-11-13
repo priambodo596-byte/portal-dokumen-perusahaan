@@ -4,7 +4,7 @@ import Dashboard from '@/components/dashboard'
 import { requireSession } from '@/lib/session'
 
 const steps = [
-  { title: 'Siapkan data proyek', text: 'Tambahkan klien pada Master Data, lalu buat proyek agar dokumen dapat ditautkan ke pekerjaan yang tepat.', href: '/master-data', label: 'Buka Master Data', icon: FolderKanban },
+  { title: 'Siapkan data proyek', text: 'Tambahkan klien melalui menu Klien & Pelanggan, lalu buat proyek agar dokumen terkait dengan pekerjaan yang tepat.', href: '/master-data', label: 'Buka Klien & Pelanggan', icon: FolderKanban },
   { title: 'Buat atau impor dokumen', text: 'Gunakan formulir dokumen untuk membuat draf baru. Dokumen lama dapat diimpor dan tetap berstatus draf sampai diperiksa.', href: '/documents/new', label: 'Buat dokumen', icon: FilePlus2 },
   { title: 'Periksa dan ajukan', text: 'Buka detail draf, periksa nilai dan lampiran, lalu ajukan untuk mengikuti proses persetujuan perusahaan.', href: '/documents', label: 'Buka dokumen', icon: FileCheck2 },
   { title: 'Tinjau persetujuan dan arsip', text: 'Pemberi persetujuan dapat memeriksa antrean. Dokumen yang diterbitkan tersedia pada halaman arsip.', href: '/approvals', label: 'Buka persetujuan', icon: ShieldCheck },

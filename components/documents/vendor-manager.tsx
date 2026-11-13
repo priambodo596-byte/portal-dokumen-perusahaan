@@ -183,7 +183,7 @@ export default function VendorManager({ role }: { role: Role }) {
   }
 
   return <>
-    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Workspace / Master Data</div><h1>Data Vendor</h1><p>Kelola identitas, kontak, kategori, rekening, dan status vendor perusahaan.</p></div>
+    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Operasional / Mitra</div><h1>Vendor & Mitra</h1><p>Kelola identitas, kontak, kategori, rekening, dan status vendor perusahaan.</p></div>
       {can(role, 'create') && <button className="primary-button" onClick={openCreate}><Plus /> Tambah Vendor</button>}</section>
     <section className="stat-grid">
       <div className="stat-card"><div className="stat-top"><span>Total vendor</span><Building2 /></div><strong>{rows?.length ?? '—'}</strong><div className="stat-foot">Semua vendor aktif dan nonaktif</div></div>

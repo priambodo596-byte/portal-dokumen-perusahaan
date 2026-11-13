@@ -34,7 +34,7 @@ export default function ProjectList({ role }: { role: Role }) {
   }
 
   return <>
-    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Workspace / Proyek</div><h1>Proyek</h1><p>Kelola proyek dan lihat nilai dokumen terkait.</p></div>
+    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Operasional / Proyek</div><h1>Proyek & Pekerjaan</h1><p>Kelola proyek dan lihat nilai dokumen terkait.</p></div>
       {can(role, 'create') && <button className="primary-button" onClick={() => setForm({ name: '', code: '', clientId: '' })}><Plus /> Tambah Proyek</button>}</section>
 
     {form && <section className="panel form-section"><h2>Proyek baru</h2><div className="form-grid">

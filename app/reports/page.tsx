@@ -11,7 +11,7 @@ export default async function ReportsPage() {
   const maxType = Math.max(1, ...s.byType.map((r) => r.n))
 
   return <Dashboard initialRoute="reports">
-    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Proses / Laporan</div><h1>Laporan</h1><p>Ringkasan operasional dokumen perusahaan.</p></div></section>
+    <section className="page-heading"><div><div className="eyebrow"><span className="eyebrow-dot" /> Pengendalian / Laporan</div><h1>Laporan Operasional</h1><p>Ringkasan operasional dokumen perusahaan.</p></div></section>
 
     <section className="stat-grid">
       <div className="stat-card stat-accent"><div className="stat-top"><span>Total dokumen</span><FileText /></div><strong>{s.documentCount}</strong></div>

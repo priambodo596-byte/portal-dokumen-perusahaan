@@ -12,8 +12,8 @@ export default async function StandardTemplatesPage() {
   return <Dashboard initialRoute="templates/standar">
     <section className="page-heading">
       <div>
-        <div className="eyebrow"><span className="eyebrow-dot" /> Administrasi / Standar PT.Palos</div>
-        <h1>Pustaka Dokumen Standar</h1>
+        <div className="eyebrow"><span className="eyebrow-dot" /> Pengaturan Perusahaan / Standar</div>
+        <h1>Standar Dokumen PT.Palos</h1>
         <p>Kelola standar {documents.length} dokumen yang dapat diakses akun Anda: skema isian, klasifikasi, jalur persetujuan, dan master DOCX privat.</p>
       </div>
     </section>
